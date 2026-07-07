@@ -1,0 +1,7 @@
+{
+  "dependencies": ["."],
+  "graphs": {
+    "harness": "agent_harness.agent:graph"
+  },
+  "env": ".env"
+}
