@@ -1,0 +1,241 @@
+/* ==========================================================================
+   Thumbnail Agent · design tokens
+   --------------------------------------------------------------------------
+   The look follows claude.dev, converted to light mode. Only this file holds
+   raw values. base.css and every page read from these custom properties, so
+   when the real claude.dev CSS arrives, this is the only file to edit.
+
+   Every value carries a tag:
+     from source   taken from the claude.dev <head> excerpt we were given
+     provisional   our best guess; replace when the real CSS arrives
+     derived       built from other tokens; follows them automatically
+     ours          a product rule, not part of the claude.dev look
+
+   Exception: CSS cannot read custom properties inside @media / @container
+   conditions, so breakpoints are listed here as documentation (--bp-*) and
+   written as literals in base.css.
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* ---------------------------------------------------------------- colour
+     Surfaces (light mode) */
+  --bg:          #faf9f5;  /* from source: <meta name="theme-color" content="#faf9f5"> (light) */
+  --panel:       #f0eee6;  /* provisional: title bars and recessed surfaces */
+  --field:       #fffefb;  /* provisional: inputs and the prompt box sit slightly above --bg */
+  --hover-row:   #ecebe2;  /* provisional: quiet hover / selected row */
+
+  /* Ink. --ink-4 is for non-essential text only (it is below 4.5:1). */
+  --ink:         #141413;  /* from source: #141413 is the dark theme-color; we use it as light-mode ink (role provisional) */
+  --ink-2:       #3d3c38;  /* provisional: 10.5:1 on --bg */
+  --ink-3:       #63625b;  /* provisional: 5.8:1 on --bg, 5.1:1 on --hover-row (AA) */
+  --ink-4:       #8b8981;  /* provisional: 3.3:1 on --bg, non-essential text only */
+  --ink-inverse: #faf9f5;  /* derived: --bg value, for text on --ink fills */
+
+  /* Lines. All borders are hairlines. */
+  --line-soft:   #e3e1d8;  /* provisional: panel and section borders */
+  --line:        #cfccc1;  /* provisional: dividers that need to be seen */
+  --line-strong: #8f8c83;  /* provisional: control borders, 3.4:1 on --bg (WCAG 1.4.11) */
+
+  /* Accent: Anthropic's public brand orange as a placeholder.
+     --accent fails AA as text (2.96:1), so text uses --accent-ink. */
+  --accent:      #d97757;  /* provisional: brand palette "orange", fills and marks only */
+  --accent-ink:  #9c4425;  /* provisional: accent for text and focus, 5.6:1 on --bg */
+  --accent-soft: #f6e6dc;  /* provisional: tinted background behind accent content */
+  --info:        #6a9bcc;  /* provisional: brand palette "blue", marks only */
+  --info-ink:    #2f6597;  /* provisional: 5.8:1 on --bg */
+  --info-soft:   #e3ebf3;  /* provisional */
+
+  /* Status */
+  --success:      #788c5d; /* provisional: brand palette "green", marks only */
+  --success-ink:  #4b6332; /* provisional: 6.4:1 on --bg */
+  --success-soft: #e7ebdc; /* provisional */
+  --warn:         #c8902e; /* provisional: marks only */
+  --warn-ink:     #87581a; /* provisional: 5.8:1 on --bg */
+  --warn-soft:    #f5ead2; /* provisional */
+  --error:        #c4513a; /* provisional: marks only */
+  --error-ink:    #a63a28; /* provisional: 6.1:1 on --bg */
+  --error-soft:   #f6e0d9; /* provisional */
+
+  /* Brand reference swatches (Anthropic's public palette), shown in the
+     style guide so the provisional picks above can be traced. */
+  --ref-dark:       #141413; /* provisional: public brand palette */
+  --ref-light:      #faf9f5; /* provisional: public brand palette */
+  --ref-mid-grey:   #b0aea5; /* provisional: public brand palette */
+  --ref-light-grey: #e8e6dc; /* provisional: public brand palette */
+
+  /* Overlay (command palette) */
+  --scrim:       rgba(20, 20, 19, .28);  /* provisional: light-mode softening of source rgba(10,10,9,.55) */
+  --scrim-blur:  10px;                   /* from source: backdrop-filter: blur(10px) */
+
+  /* Selection + focus */
+  --selection:   #f2d9cb;  /* provisional */
+  --focus:       var(--accent-ink);  /* derived */
+
+  /* ------------------------------------------------- placeholder art (ours)
+     Sample creator's thumbnail brand, used only to draw placeholder
+     thumbnails and brand-kit chips. Not UI colours. */
+  --art-navy:     #0b1a33;
+  --art-navy-2:   #17325e;
+  --art-yellow:   #ffd21f;
+  --art-red:      #e8412c;
+  --art-white:    #ffffff;
+  --art-black:    #0a0a0a;
+  --art-blue:     #2f6bff;
+  --art-teal:     #0fa597;
+  --art-orange:   #ff7a1a;
+  --art-skin:     #c68863;
+  --art-hair:     #1c1410;
+  --art-shirt:    #101a2c;
+  --art-robot:    #a7b6c8;
+  --art-screen:   #e8edf4;
+  --art-screen-2: #c3ccd8;
+  --art-tag-bg:   rgba(10, 10, 9, .62);  /* label chip on a thumbnail */
+  --art-shade:    rgba(10, 10, 9, .35);  /* soft vignette */
+
+  /* ------------------------------------------------------------ type */
+  --sans: "Hanken Grotesk", "Noto Sans Tamil", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;  /* provisional: free stand-in for AnthropicSans */
+  --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, Consolas, "Noto Sans Tamil", monospace;           /* provisional: free stand-in for AnthropicMono */
+
+  /* Scale. The three small mono sizes come straight from the palette excerpt. */
+  --text-2xs:  0.625rem;   /* from source: palette title bar, footer */
+  --text-xs:   0.75rem;    /* from source: palette tabs, row numbers */
+  --text-sm:   0.875rem;   /* from source: palette prompt row, list items */
+  --text-base: 1rem;       /* provisional */
+  --text-body: 1.0625rem;  /* provisional: article body (17px) */
+  --text-lg:   1.25rem;    /* provisional */
+  --text-xl:   1.5rem;     /* provisional */
+  --text-2xl:  2rem;       /* provisional */
+  --text-display: clamp(2.125rem, 1.5rem + 2.4vw, 3rem);  /* provisional: article and view titles */
+
+  --weight-regular: 400;   /* provisional */
+  --weight-medium:  500;   /* provisional */
+  --weight-semi:    600;   /* provisional */
+  --weight-black:   900;   /* ours: placeholder thumbnail headlines */
+
+  --leading-tight: 1.08;   /* provisional: display */
+  --leading-snug:  1.25;   /* provisional: headings */
+  --leading-ui:    1.45;   /* provisional: UI text */
+  --leading-body:  1.65;   /* provisional: article body */
+
+  --tracking-mono:    0.02em;   /* from source: palette title bar and tabs */
+  --tracking-tight:  -0.015em;  /* provisional: headings */
+  --tracking-display:-0.028em;  /* provisional: display */
+  --tracking-caps:    0.06em;   /* provisional: rare uppercase labels */
+
+  --measure: 66ch;  /* provisional: readable line length */
+
+  /* ---------------------------------------------------------- spacing
+     4px base, plus the exact paddings from the palette excerpt. */
+  --space-px: 1px;
+  --space-1:  4px;   /* provisional */
+  --space-2:  8px;   /* provisional */
+  --space-3:  12px;  /* provisional */
+  --space-4:  16px;  /* provisional */
+  --space-5:  20px;  /* provisional */
+  --space-6:  24px;  /* provisional */
+  --space-8:  32px;  /* provisional */
+  --space-10: 40px;  /* provisional */
+  --space-12: 48px;  /* provisional */
+  --space-16: 64px;  /* provisional */
+  --space-20: 80px;  /* provisional */
+
+  --pad-bar-y:    7px;   /* from source: palette title bar padding 7px 14px */
+  --pad-bar-x:    14px;  /* from source */
+  --pad-prompt-y: 13px;  /* from source: palette prompt row padding 13px 16px */
+  --pad-prompt-x: 16px;  /* from source */
+  --pad-row-y:    9px;   /* from source: palette list item padding 9px 16px */
+  --pad-row-x:    16px;  /* from source */
+
+  /* ---------------------------------------------------- borders + radius */
+  --border:       1px;   /* from source: 1px solid var(--line-soft) */
+  --border-focus: 2px;   /* provisional */
+  --focus-offset: 2px;   /* provisional */
+  --radius:       0;     /* from source: the palette panel has no border-radius */
+  --radius-dot:   50%;   /* ours: status dots only */
+
+  /* ------------------------------------------------------------ shadows */
+  --shadow-overlay: 0 24px 64px rgba(20, 20, 19, .14), 0 2px 8px rgba(20, 20, 19, .06);  /* provisional: light-mode softening of source 0 40px 110px rgba(0,0,0,.65) */
+  --shadow-raise:   0 1px 0 rgba(20, 20, 19, .04), 0 8px 24px -12px rgba(20, 20, 19, .12); /* provisional */
+  --shadow-none:    none;
+
+  /* ------------------------------------------------------------- motion */
+  --dur-fast:  .18s;   /* from source: overlay + panel opacity */
+  --dur-base:  .22s;   /* from source: panel transform */
+  --dur-slow:  .42s;   /* provisional: diagram moves in the step player */
+  --dur-pulse: 1.2s;   /* provisional: running indicator */
+  --dur-flow:  1.4s;   /* provisional: dot travelling down a connector */
+  --dur-step:  4s;     /* ours: reel mode auto-advance */
+  --stagger:   .06s;   /* provisional: delay between popped rows */
+  --ease-out:  cubic-bezier(.22, 1, .36, 1);  /* provisional: name from source, curve is a guess */
+  --ease-std:  ease;   /* from source: overlay transition .18s ease */
+
+  --enter-y:     8px;  /* from source: translateY(8px) scale(.99) → none */
+  --enter-scale: .99;  /* from source */
+  --pop-x:      -6px;  /* from source: @keyframes row-pop translateX(-6px) */
+
+  /* ------------------------------------------------------------- layout */
+  --gutter:        16px;      /* ours: phone side gutter */
+  --gutter-wide:   32px;      /* provisional: from 48rem up */
+  --tap:           44px;      /* ours: minimum tap target */
+  --w-article:     42.5rem;   /* provisional: 680px reading column */
+  --w-app:         75rem;     /* provisional: 1200px app frame */
+  --w-palette:     min(680px, 94vw);  /* from source */
+  --h-palette-list: min(52vh, 420px); /* provisional */
+  --header-h:      52px;      /* provisional */
+  --mark:          10px;      /* ours: square brand mark */
+  --dot:           6px;       /* provisional: status dot */
+  --meter-h:       4px;       /* provisional: score bar height */
+  --switch-w:      40px;      /* provisional */
+  --switch-h:      22px;      /* provisional */
+  --switch-knob:   16px;      /* provisional */
+  --ratio-thumb:   16 / 9;    /* ours: YouTube thumbnail */
+  --ratio-photo:   4 / 5;     /* ours: creator photo tile */
+  --ratio-reel:    9 / 16;    /* ours: Instagram reel frame */
+
+  /* Placeholder thumbnail type, relative to the thumbnail's own width */
+  --thumb-headline:  10.5cqi; /* ours */
+  --thumb-number:    34cqi;   /* ours */
+  --thumb-stroke:    0.7cqi;  /* ours: black text stroke */
+  --thumb-rim:       0.6cqi;  /* ours: white rim around the cut-out face */
+  --thumb-ring:      0.9cqi;  /* ours: red circle stroke */
+  --thumb-badge:     2.6cqi;  /* ours: YouTube duration badge text */
+  --thumb-pad:       5cqi;    /* ours: safe margin */
+
+  /* Reel mode type, relative to the 9:16 frame width */
+  --reel-caption: 6.4cqi;   /* ours */
+  --reel-body:    3.7cqi;   /* ours */
+  --reel-meta:    2.9cqi;   /* ours */
+  --reel-pad:     6cqi;     /* ours */
+
+  /* z-index */
+  --z-header:  10;
+  --z-overlay: 100;
+
+  /* Breakpoints (documentation only, see note at the top) */
+  --bp-sm: 40rem;   /* 640px: two columns start */
+  --bp-md: 48rem;   /* 768px: wide gutter */
+  --bp-lg: 64rem;   /* 1024px: app side-by-side layouts */
+}
+
+/* Reduced motion: every duration collapses, so components need no extra
+   rules. The reel auto-advance (--dur-step) stays, because it is content
+   pacing, not decoration. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-fast:  0s;
+    --dur-base:  0s;
+    --dur-slow:  0s;
+    --dur-pulse: 0s;
+    --dur-flow:  0s;
+    --stagger:   0s;
+    --enter-y:   0px;
+    --enter-scale: 1;
+    --pop-x:     0px;
+  }
+}
+
+/* Dark mode goes here later. Redefine the colour tokens only, e.g.
+   :root[data-theme="dark"] { color-scheme: dark; --bg: #141413; --ink: #faf9f5; ... }
+   (#141413 is the source's dark theme-color.) Nothing in base.css needs to change. */
