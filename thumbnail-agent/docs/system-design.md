@@ -7,7 +7,7 @@ any of this.
 
 | v0.1 | v0.2 (now) |
 | --- | --- |
-| Thumbnail drawn by code (HTML/CSS → PNG) | **An AI image model generates the thumbnail** (OpenAI or Gemini). It uses the creator's photo and the chosen reference thumbnails as image inputs. Code only adds text (Tamil text, or a fallback when the model misspells) |
+| Thumbnail drawn by code (HTML/CSS → PNG) | **An AI image model generates the thumbnail** (OpenAI or Gemini). It uses the creator's photo and the chosen reference thumbnails as image inputs. **The model also writes the headline text.** No text is drawn by code |
 | 10 references picked by hand | **The agent finds the creator's reference types** in their own channel thumbnails, and picks the right type for each new concept |
 | Brief as a form | **Any concept, typed as a free-form user prompt.** System prompts turn it into a design |
 | Stack recommended | Stack decided: **Next.js + Vercel AI SDK**, with OpenAI or Gemini for image generation (switchable) |
@@ -143,8 +143,8 @@ the top 2–3 types, or one type with 3 variations.
 - **Images 2–3 are style references.** Match their layout, framing, colour
   treatment and text styling. Do **not** copy their text, people or logos.
 - **Composition:** where the face goes and how big it is, the background, and props.
-- **Text:** the exact headline in quotes, plus its position and style. Or no
-  text at all when we overlay it with code (Tamil, or fallback).
+- **Text:** the exact headline in quotes, its script (Latin or Tamil), its
+  position and its style. The image model draws the text. Code never draws it.
 - **Brand:** palette and recurring elements from the brand kit.
 - **Format:** 16:9, high contrast, readable at phone size.
 
@@ -154,10 +154,20 @@ provider, then code resizes the result to exactly 1280×720.
 **G5. Guardrails (code, no model call).**
 - Aspect ratio and size are correct, and the file is under 2 MB.
 - The headline length is within limits (checked before generating).
-- **Cost cap:** at most 9 image calls per run (3 options × 1 generate + 2 edits).
-- **Round cap:** 2 refine rounds per option.
-- **Text overlay mode** (Tamil/fallback): the font actually rendered, with no
-  broken glyphs.
+- **Round cap:** each option gets at most 2 edits after its first generation.
+- **Cost cap:** at most 9 image calls per run. Where 9 comes from:
+
+| | Call 1 | Call 2 (if needed) | Call 3 (if needed) | Max |
+| --- | --- | --- | --- | --- |
+| Option A | generate v1 | edit → v2 | edit → v3 | 3 |
+| Option B | generate v1 | edit → v2 | edit → v3 | 3 |
+| Option C | generate v1 | edit → v2 | edit → v3 | 3 |
+| **Run** | | | | **9** |
+
+The creator always gets **3 thumbnails**. The edits are not extra thumbnails.
+They are fixed versions of the same option, and earlier versions only appear
+in the round history. An option that passes the critic at v1 uses 1 call, so
+a typical run uses fewer than 9 (best case 3).
 
 **G6. Critique (vision).** The critic sees the render at full size **and** at
 phone size (about 320×180), next to the creator's real photo. It scores:
@@ -176,7 +186,9 @@ phone size (about 320×180), next to the creator's real photo. It scores:
 It returns `ship` or `revise`, with **one specific edit instruction** (e.g.
 "Make the headline 30% larger and move it top-left. Keep everything else.").
 Face match and text accuracy are **hard gates**: an option fails if either one
-fails, whatever the other scores are.
+fails, whatever the other scores are. If an option still fails a hard gate after
+its 2 edits, it is shown with a clear flag (e.g. "text not exact") instead of
+being hidden.
 
 **G7. Refine (tool).** `edit_thumbnail(image, instruction, creatorPhoto)` calls
 the image model again with the current render plus the instruction. The creator
@@ -196,7 +208,6 @@ pick and the reason are saved, and they shape future style picks.
 | `edit_thumbnail(image, instruction, photo)` | Returns the edited PNG |
 | `check_guardrails(image)` | Returns pass or fail with reasons |
 | `critique(image, brief)` | Returns rubric scores, a verdict and an edit instruction |
-| `overlay_text(image, headline, style)` | Draws text in code, for Tamil or as a fallback |
 
 ## 6. Image generation
 
@@ -216,12 +227,16 @@ pick and the reason are saved, and they shape future style picks.
   setup episode must say that clearly.
 - **This sandbox can reach Gemini's API, but `api.openai.com` is blocked** by the
   environment's network policy. Allow it before we test OpenAI here.
-- **Text:** both providers now render English text well. That is a measured
-  claim to check (critic: text accuracy). Tamil is the risky one, so plan on
-  code overlay for Tamil unless the spike proves otherwise.
+- **Text is drawn by the image model.** English text from current models is
+  usually right, but we measure it (critic: text accuracy) rather than assume
+  it. **Tamil is the risk:** image models are weaker with Tamil script. The
+  critic reads the text back, and an edit round fixes misspellings. Spike 3
+  measures how often Tamil comes out exact, so we know before any promise on
+  camera.
 - **Face:** identity drift is the biggest risk for a creator tool. If face match
-  keeps failing, the fallback is to generate the scene **without** the person
-  and composite the real photo cutout in code.
+  keeps failing in spike 1, we decide the fallback together. Options: more
+  reference photos of the creator, a different image model, or generating
+  the scene without the person and placing the real photo on top.
 
 ## 7. Data contracts
 
@@ -275,7 +290,6 @@ type ReferencePick = { typeId: string; exampleIds: string[]; photoId: string; re
 type ImagePrompt = {
   prompt: string;
   images: { role: "creator" | "reference"; id: string }[];
-  textMode: "model" | "overlay";
 };
 
 type Critique = {
@@ -315,8 +329,7 @@ type Critique = {
 | App | Next.js (App Router), TypeScript |
 | AI | Vercel AI SDK. Text and vision on Gemini (free tier while building), images on OpenAI or Gemini via `IMAGE_PROVIDER` |
 | Schemas | zod |
-| Image ops | sharp (resize to 1280×720, phone-size copy, compositing) |
-| Text overlay | HTML/CSS rendered in headless Chromium (handles Tamil correctly) |
+| Image ops | sharp (resize to 1280×720, phone-size copy for the critic) |
 | Storage | Local files while building. Vercel Blob (or similar) when deployed |
 | UI theme | claude.dev look, in light mode (see `design/`) |
 | Deploy | Vercel, linked from mugilans.in or ageofagi.in |
@@ -330,7 +343,7 @@ Config, all in env: `TEXT_MODEL`, `IMAGE_PROVIDER`, `IMAGE_MODEL`,
 | --- | --- | --- | --- |
 | 1 | **Face:** does the creator still look like himself? | 5 concepts × 2 providers, one photo as input | You say "that's him" on at least 4 of 5 |
 | 2 | **Style:** does the output follow a reference type without copying it? | Same 5 concepts, 2–3 reference thumbnails as input | It reads as "his channel", and no reference text or face is copied |
-| 3 | **Text:** English spelling, and Tamil | 10 headlines in each language | English always correct. Tamil decides overlay vs. model |
+| 3 | **Text:** English spelling, and Tamil | 10 headlines in each language | English exact on the first try or after 1 edit. Tamil: we measure the exact-rate and decide together if it's too low |
 | 4 | **Critic:** does it catch planted problems? | Wrong face, a misspelled word, tiny text, a cluttered image | It catches every planted problem |
 | 5 | **SDK:** can AI SDK pass reference images to both providers? | One call per provider | It works, or we call the provider SDK inside our tool |
 | 6 | **Cost:** what does one run cost? | Log the calls in spikes 1–3 | A number per run, per provider |
