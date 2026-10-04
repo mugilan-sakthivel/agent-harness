@@ -1,61 +1,93 @@
-# Concepts: what we teach, and where each one lives in the agent
+# 15 concepts × 15 builds
 
-This is a **candidate list, not the final episode list.** We lock the final list
-and the episode count in Phase 4, after the agent is built and optimised. Some
-concepts will merge, some will split, and the build will tell us which ones are
-worth a full episode.
+Each episode teaches **one AI concept** and has the viewer **build one piece** of
+the Thumbnail Agent. By episode 15 they have a deployed thumbnail designer.
 
-The rule stays the same: **one concept per reel**, and every concept points to
-a real stage of the thumbnail agent.
+This is the plan to build against. It stays a draft until Phase 4: the build and
+the evals may merge, split or reorder episodes.
 
-## The map
+## The plan
 
-| # | Concept | Where it lives | What the viewer sees after building it | Real-app hook (candidate) |
-| --- | --- | --- | --- | --- |
-| 1 | Setup | Project, API key, first run | App runs locally, key works | — |
-| 2 | LLM call | S4 (simplest form) | 3 headline ideas for a video title | Every ChatGPT reply is one API call |
-| 3 | System prompt | S4 planner, S7 critic | Same brief, two very different styles of output | Support bots that each have a "personality" |
-| 4 | Structured output | S1, S4, S7 (all JSON) | 3 concepts as validated JSON, not a paragraph | Bill/receipt scanners turning a photo into fields |
-| 5 | Vision (multimodal) | S1 brand extraction, S2 photo tags | `brand.json` read from their own past thumbnails | Google Lens |
-| 6 | Context engineering | Digest once, reuse as text (decision 4) | Faster, cheaper runs. The model "knows" the brand without seeing 30 images every time | Why ChatGPT forgets the start of a long chat |
-| 7 | Tool calling | S5 render tool | **First real thumbnail PNG** | Assistants that set an alarm instead of describing one |
-| 8 | Workflow vs. agent | S0–S3 vs. S4–S7 | The pipeline map, with the agent part highlighted | "Most AI agents are mostly workflows" |
-| 9 | Agent loop | S4 → S5 → S6 → S7 | A step-by-step trace of the agent's think → act → observe cycle | Maps rerouting when traffic changes |
-| 10 | Self-critique | S7 critic + loop control | v1 → v2 → v3 with scores going up | An editor marking up your draft |
-| 11 | Guardrails | S6 code checks | Agent rejects tiny text and a covered face without a model call | UPI daily limits: hard rules, not judgment |
-| 12 | Memory | Brand kit + creator picks | Second run already matches the creator's taste better | ChatGPT memory, Spotify knowing your taste |
-| 13 | Human in the loop | S8 "pick this one", editing `brand.json` | Creator corrects the agent and it sticks | Gmail Smart Compose: you press Tab to accept |
-| 14 | Evals | `evals/` test set + results log | A table showing v1 → vN getting better | YouTube Test & Compare picking a winner |
-| 15 | Streaming UI | Live run view | Viewers watch the agent think and render in real time | ChatGPT typing word by word, live order tracking |
-| 16 | Deploy | Vercel + render service | A live link they can share | — |
-| 17 | Retrieval / embeddings *(optional)* | S3 at scale: pick closest references | Right references picked automatically from a big library | Pinterest "more like this", Instagram Explore |
+### Part 1: Foundations (the "I can do this" part)
 
-## Phase grouping (from the earlier 15-reel plan, updated)
+| # | Concept | What they build | What they see at the end |
+| --- | --- | --- | --- |
+| 1 | **Setup: what an AI app is made of** | Next.js app in the theme, AI SDK, API key in `.env` | The app running locally, styled like the final product |
+| 2 | **The LLM call** | A concept box that sends the user's text to the model | 5 headline ideas for any video concept |
+| 3 | **System prompt vs. user prompt** | The "Strategist" system prompt. The creator's concept stays the user prompt | Same concept, with and without the system prompt: generic vs. sharp |
+| 4 | **Structured output** | The strategist returns a `Brief` as validated JSON | A brief card: hook, emotion, headline, objects |
+| 5 | **Vision (multimodal input)** | The "Thumbnail analyst" reads the creator's past thumbnails | A table of their thumbnails, each with an AI description |
 
-- **Foundations:** 1–6. By the end, the agent can read a brand and plan concepts
-  as JSON, with no image yet.
-- **Making it an agent:** 7–11. By the end, it renders, checks and fixes its own
-  thumbnails.
-- **Making it real:** 12–17. By the end, it remembers, gets measured, streams,
-  and is live.
+### Part 2: Making it an agent
 
-## What changed from the earlier 15-reel list
+| # | Concept | What they build | What they see at the end |
+| --- | --- | --- | --- |
+| 6 | **Classification: finding patterns** | The "Style librarian" groups thumbnails into reference types + brand kit | A "Your thumbnail styles" board, with examples per style |
+| 7 | **Embeddings & retrieval** | Find the past thumbnails closest to a new concept | "For this concept, use style X, like these 3" |
+| 8 | **Image generation with image inputs** | Generate a thumbnail from the creator photo + references + prompt | **The first generated thumbnail** |
+| 9 | **Prompt chaining** | Brief → pick → image prompt writer → generator, each step feeding the next | A visible jump in quality vs. episode 8's single prompt |
+| 10 | **Tool calling & the agent loop** | Give the model tools (`pick_reference`, `generate`, `edit`) and let it run | A live trace of the agent deciding its next step |
+| 11 | **Self-critique** | The critic: face match, text spelling, phone readability, then an edit | v1 → v2 with scores going up |
+| 12 | **Guardrails** | Hard gates (face, text), cost cap, round cap, badge zone, all in code | Bad outputs blocked, and the run stays under budget |
 
-- **Added:** context engineering (#6). You asked for HD photos and 10 references
-  "as context", and how to do that without wasting calls is a concept on its own.
-- **Added:** workflow vs. agent (#8). It's a strong trust beat, and it sets up
-  the agent loop.
-- **Added:** human in the loop (#13). The creator's pick drives memory.
-- **Made optional:** retrieval (#17). With 10 references it isn't needed. It
-  earns a place only if we grow the reference library.
+### Part 3: Making it real
 
-## How we pick the real-app hooks
+| # | Concept | What they build | What they see at the end |
+| --- | --- | --- | --- |
+| 13 | **Memory** | Save the creator library and picks. Later runs follow the creator's taste | The second run already leans toward the creator's favourite style |
+| 14 | **Evals** | 10 test concepts, a scorecard, and a pairwise "which would you click?" | A table showing v1 → vN improving |
+| 15 | **Streaming + deploy** | Stream agent steps to the UI, deploy to Vercel | A live link, in the same theme, on their own domain |
 
-The "Real-app hook" column is a starting point. At scripting time each hook must
-pass two tests:
+## How the pieces connect
+
+```
+ 1 Setup ─ 2 LLM call ─ 3 System prompt ─ 4 Structured output ─ 5 Vision
+                                                                    │
+ 8 Image gen ◀─ 7 Retrieval ◀─ 6 Reference types ◀──────────────────┘
+     │
+ 9 Chaining ─ 10 Agent loop ─ 11 Self-critique ─ 12 Guardrails
+                                                        │
+              15 Stream + deploy ◀─ 14 Evals ◀─ 13 Memory
+```
+
+## Where each concept lives in the system design
+
+| Concept | Stage in `system-design.md` |
+| --- | --- |
+| 2–4 | G1 Brief (strategist prompt, `Brief` schema) |
+| 5 | S1 Analyze thumbnails, S4 Tag photos |
+| 6 | S2 Reference types, S3 Brand kit |
+| 7 | G2 Pick reference |
+| 8 | G4 Generate |
+| 9 | G1 → G2 → G3 → G4 |
+| 10 | The generate loop and its tools |
+| 11 | G6 Critique, G7 Refine |
+| 12 | G5 Guardrails, hard gates in G6 |
+| 13 | G8 Results + memory |
+| 14 | Section 8, Evals |
+| 15 | UI + deploy |
+
+## Real-app hooks (for the reel's "real app" beat)
+
+These are candidates. At scripting time each hook must pass two tests:
 
 1. The viewer uses the app weekly.
-2. The concept genuinely runs in that app, or the comparison is clearly labelled
-   as an analogy.
+2. The concept genuinely runs in that app, or the comparison is clearly
+   labelled as an analogy.
 
-If a hook fails either test, pick a different hook. Don't stretch the claim.
+| # | Candidate hook |
+| --- | --- |
+| 2 | Every ChatGPT reply is one API call |
+| 3 | The same chatbot behaves differently inside different apps (its system prompt) |
+| 4 | Bill and receipt scanners turning a photo into fields |
+| 5 | Google Lens |
+| 6 | Photo apps grouping your pictures by person or place |
+| 7 | Pinterest "more like this", Instagram Explore |
+| 8 | Editing a photo by typing what you want in ChatGPT or Gemini |
+| 9 | An assembly line: each station does one job |
+| 10 | Assistants that set an alarm instead of describing one |
+| 11 | An editor marking up your draft (analogy) |
+| 12 | UPI daily limits: hard rules, not judgement |
+| 13 | ChatGPT memory, Spotify knowing your taste |
+| 14 | YouTube Test & Compare picking the winning thumbnail |
+| 15 | ChatGPT typing word by word, live order tracking |

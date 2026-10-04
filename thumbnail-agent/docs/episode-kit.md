@@ -74,38 +74,41 @@ thumbnails back.
 
 ---
 
-## Worked example: Self-critique (candidate #10)
+## Worked example: Self-critique (episode 11)
 
 Use this to judge whether the format works before we commit to it.
 
 **Reel**
 
 - **Hook (0–3s):** split screen. On the left, the agent's first thumbnail. Over
-  it, the agent's own note: "Text unreadable on a phone. Readability 2/5."
+  it, the agent's own note: "That's not his face. Face match 2/5. Rejected."
 - **Real app (3–15s):** "An editor marks up your draft before it goes out. We
   gave the agent its own editor." (This is clearly labelled as an analogy.)
 - **Concept (15–45s):** two roles, the designer and the critic. The critic has
-  a rubric, sees the image at phone size, and returns specific fixes, not vibes.
+  a rubric, compares the face with the real photo, reads the text back, checks
+  it at phone size, and returns one specific edit, not vibes. Face and text are
+  hard gates.
   The loop has a limit, and the best version wins, not the last one.
-- **In our agent (45–70s):** the pipeline map with S7 lit up. Then the real
-  critique JSON, and the v1 → v2 → v3 renders with their real scores from the
+- **In our agent (45–70s):** the pipeline map with Critique lit up. Then the
+  real critique JSON, and the v1 → v2 renders with their real scores from the
   results log.
 - **Bridge (70–90s):** "Comment CRITIC and I'll send you the page and the prompt."
 
-**Interactive:** a sample thumbnail with sliders for text size, contrast and
-word count. As the viewer drags them, the full-size and phone-size previews
-update side by side, along with the rubric score, so they *see* why small text
-fails.
+**Interactive:** the viewer plays critic first. They score 3 real renders from
+our build (one with a drifted face, one with a misspelled word, one good), then
+reveal the agent's scores next to their own. A phone-size toggle shows why
+small text fails.
 
 **Quiz (sample):**
 
 1. Why does the critic look at the thumbnail at 320×180?
 2. The score went 3.6 → 3.4 in round 2. Which version does the agent return?
-3. "Text overlaps the face" should be caught by the model or by code. Which one, and why?
+3. "Image is not 16:9" should be caught by the model or by code. Which one, and why?
 
-**Build prompt "Done when":** run the critic on our deliberately broken
-thumbnail (tiny headline). It scores readability ≤ 2 and returns a fix that
-raises the headline size. After the fix, the re-rendered version scores higher.
+**Build prompt "Done when":** run the critic on our planted bad thumbnails
+(drifted face, misspelled headline, tiny text). It fails each one on the right
+rubric line and returns an edit instruction. After one refine round, the
+misspelled one passes text accuracy.
 
 **What you'll have:** the results page now shows each round with before and
 after images and scores.
@@ -115,7 +118,7 @@ after images and scores.
 ## Episode folder (created in Phase 4)
 
 ```
-episodes/10-self-critique/
+episodes/11-self-critique/
   script.md        # the 5 beats with timings and the shot list
   prompt.md        # the build prompt, with its replay-test result and date
   page/index.html  # the learning page

@@ -1,357 +1,353 @@
 # System design: Thumbnail Agent
 
-Status: **draft v0.1 for review.** Nothing here is built yet. Phase 1 spikes may
-change any of it.
+Status: **draft v0.2 for review.** Nothing is built yet. Phase 1 spikes may change
+any of this.
+
+## What changed from v0.1
+
+| v0.1 | v0.2 (now) |
+| --- | --- |
+| Thumbnail drawn by code (HTML/CSS → PNG) | **An AI image model generates the thumbnail** (OpenAI or Gemini). It uses the creator's photo and the chosen reference thumbnails as image inputs. Code only adds text (Tamil text, or a fallback when the model misspells) |
+| 10 references picked by hand | **The agent finds the creator's reference types** in their own channel thumbnails, and picks the right type for each new concept |
+| Brief as a form | **Any concept, typed as a free-form user prompt.** System prompts turn it into a design |
+| Stack recommended | Stack decided: **Next.js + Vercel AI SDK**, with OpenAI or Gemini for image generation (switchable) |
 
 ## 1. Goal
 
-Given a creator's brand, their photos, 10 reference thumbnails and a video brief,
-produce **3 different thumbnail options** that:
+A creator sets up once with their photos and their past thumbnails. After that
+they can type **any video concept** and get **3 thumbnail options** that:
 
-- look like the creator's brand, not like a generic AI image,
-- stay readable at phone size, where most people see thumbnails,
-- use the creator's real face, unchanged,
-- come with a score and a short reason, so the creator can trust the choice.
+- look like *their* channel, in the same styles their audience already recognises,
+- show *their* face, which still looks like them,
+- spell the headline correctly and stay readable at phone size,
+- come with a score and a short reason for each.
 
-**Not goals for v1:** editing video frames, generating the creator's face,
-writing the video title, or posting to YouTube.
+**Not goals for v1:** writing video titles, posting to YouTube, or making video.
 
-## 2. Key design decisions
+## 2. User flow
 
-Each of these is a choice with a reason. Each one is also something worth teaching.
+**Setup (once per creator, about 2 minutes)**
 
-1. **Render the thumbnail with code (HTML/CSS → PNG), not with an AI image model.**
-   - Text comes out exactly right. Image models often misspell words, and they
-     are worse with Tamil script. A browser renders Tamil correctly with a real
-     Tamil font.
-   - The creator's brand fonts and colours stay exact.
-   - The creator's face is their real photo, never a generated lookalike.
-   - It is free, and the same input gives the same result every time, which
-     makes evals possible.
-   - AI image generation becomes an **optional tool** for backgrounds only. If
-     the free tier doesn't cover it, nothing breaks.
+1. Upload 3–5 HD photos (different expressions, the kind they already use in thumbnails).
+2. Upload 20–30 past thumbnails, each with its video title if possible.
+3. The agent analyses the thumbnails and shows two things: **"Your thumbnail
+   styles"** (the reference types, each with examples) and **your brand kit**.
+4. The creator renames, merges or removes styles if the agent got them wrong.
 
-2. **The agent edits the recipe, not the pixels.** Every thumbnail is a small
-   JSON "concept": template, headline, photo, colours and background. The critic
-   doesn't touch the image. It suggests changes to the JSON, and we re-render.
-   That keeps each fix precise, small and easy to undo.
+**Generate (every video)**
 
-3. **Templates first, free-form later.** v1 uses 4–5 layout templates filled from
-   JSON. That is reliable and easy to debug. Letting the model write its own
-   layout is a Phase 3 experiment, and we only keep it if the evals say it is
-   better.
-
-4. **Digest images once, then work in text.** The model doesn't need HD images,
-   but the renderer does. We describe the brand thumbnails, references and
-   photos **once**, store those descriptions as text, and reuse them on every
-   run. The model only sees pixels again when it critiques a render. This keeps
-   each call fast and cheap, and it keeps us inside free-tier limits.
-
-5. **Part pipeline, part agent.** Ingest, brand extraction and photo prep always
-   run the same steps in the same order, so they are a plain **workflow**. Only
-   the design → render → check → critique → fix loop needs the model to make
-   decisions, so only that part is the **agent**. Saying this honestly is a trust
-   point: most "agents" are mostly workflows.
-
-6. **Rules in code, taste in the model.** Anything measurable is checked by
-   code, with no model call: size, word count, contrast and text overlapping
-   the face. The model only judges what code can't, such as curiosity, emotion
-   and brand feel.
-
-7. **Keep the best so far.** Critique loops can make things worse. We always
-   return the highest-scoring version, not the last one.
-
-8. **The model is a config value.** The model id lives in config. We can switch
-   Gemini versions, or switch providers, without touching the agent.
+1. Type the concept, e.g. *"I let 5 AI agents build the same app, one of them cheated"*.
+2. Optionally choose the text language (English / Tamil / Tanglish) and the image
+   provider.
+3. Watch the agent work: brief → pick reference → image prompt → generate →
+   critique → refine.
+4. Get 3 options with scores. Download one, or pick one so the agent remembers
+   the choice.
 
 ## 3. Architecture
 
 ```mermaid
 flowchart TD
-  subgraph IN[Inputs]
-    A[Brand thumbnails<br/>channel URL or upload]
-    B[Creator HD photos]
-    C[10 reference thumbnails]
-    D[Video brief]
+  subgraph SETUP[Setup: workflow, once per creator]
+    P[Creator photos] --> PT[Tag photos<br/>expression, gaze, framing]
+    T[Past thumbnails + titles] --> AN[Analyze thumbnails<br/>vision → notes]
+    AN --> RT[Group into<br/>reference types]
+    AN --> BK[Extract brand kit]
   end
 
-  subgraph PREP[Workflow: runs once per creator]
-    S1[S1 Brand extraction<br/>vision + palette code]
-    S2[S2 Photo prep<br/>cutout + tags]
-    S3[S3 Reference digest<br/>patterns as text]
+  PT --> LIB[(Creator library<br/>photos · notes · types · brand kit)]
+  RT --> LIB
+  BK --> LIB
+
+  subgraph GEN[Generate: agent, per concept]
+    U[User prompt: concept] --> BR[Brief<br/>hook · emotion · headline]
+    BR --> PK[Pick reference<br/>type + 2–3 examples + best photo]
+    PK --> IP[Write image prompt]
+    IP --> G[Generate<br/>image model]
+    G --> GC[Guardrails<br/>code checks]
+    GC --> CR[Critique<br/>vision rubric]
+    CR -->|revise: edit instruction| RF[Refine<br/>image edit]
+    RF --> GC
+    CR -->|ship / budget used| OUT[Results: 3 options]
   end
 
-  A --> S1 --> K[(Brand kit<br/>memory)]
-  B --> S2 --> L[(Asset library)]
-  C --> S3 --> R[(Reference notes)]
-
-  subgraph AGENT[Agent loop: runs per video]
-    S4[S4 Plan<br/>3 concept JSONs]
-    S5[S5 Render tool<br/>HTML/CSS → PNG]
-    S6[S6 Guardrails<br/>code checks]
-    S7[S7 Critique<br/>vision rubric]
-  end
-
-  D --> S4
-  K --> S4
-  L --> S4
-  R --> S4
-  S4 --> S5 --> S6
-  S6 -->|fails: fix list| S4
-  S6 -->|passes| S7
-  S7 -->|revise: patch the JSON| S5
-  S7 -->|ship, or max rounds| S8[S8 Results page<br/>HTML you can host]
-  S8 -->|creator picks one| K
+  LIB --> BR
+  LIB --> PK
+  LIB --> IP
+  OUT -->|creator picks one| LIB
 ```
 
-## 4. Stages
+Setup always runs the same steps in the same order, so it is a **workflow**.
+Generate is where the model makes real decisions: which style fits, what to fix,
+and when to stop. That part is the **agent**. Saying that clearly on camera is a
+trust point.
 
-Each stage has an output you can look at, so a stage can be checked by eye
-before the next one starts. Each stage is also a natural episode boundary.
+## 4. Prompts: system and user
 
-### S0. Ingest
+The creator only ever writes the **user prompt** (the concept). Everything else
+is a **system prompt** we write, version, and improve using evals.
 
-- **Brand thumbnails:** take a channel URL. The channel's public RSS feed lists
-  its latest 15 videos, and each video's thumbnail lives at a predictable URL
-  (`i.ytimg.com/vi/<videoId>/maxresdefault.jpg`, falling back to `hqdefault.jpg`).
-  Manual upload also works. Target 15–30 thumbnails.
-- **Creator photos:** 5–15 HD photos with varied expressions (shocked, smiling,
-  pointing, thinking), good light, and a plain background if possible.
-- **References:** 10 thumbnails, as links or files.
-- **Brief:** title or topic, the hook in one line, and the language for the
-  thumbnail text (English, Tamil or Tanglish).
-- **Check:** all assets load, and each one shows up in a contact sheet.
+| Prompt | Kind | Job | Input → output |
+| --- | --- | --- | --- |
+| **Thumbnail analyst** | system (vision) | Describe one past thumbnail precisely | image + title → `ThumbnailNote` |
+| **Style librarian** | system | Group the notes into reference types | all notes → `ReferenceType[]` + `BrandKit` |
+| **Photo tagger** | system (vision) | Tag each creator photo | photo → `CreatorPhoto` tags |
+| **Strategist** | system | Turn a concept into a thumbnail brief | **user prompt** + brand kit → `Brief` |
+| **Art director** | system | Pick the reference type, examples and photo | brief + types + photo tags → `ReferencePick` |
+| **Image prompt writer** | system | Write the prompt for the image model | brief + pick + brand kit → `ImagePrompt` |
+| **Critic** | system (vision) | Score the render and say what to fix | render + creator photo + brief → `Critique` |
 
-### S1. Brand extraction (once per creator, rerun on a rebrand)
+All of these live in `app/prompts/` as plain files with a version number, so
+episodes can show the real prompt, and evals can compare prompt v3 with v4.
 
-- **Code:** pull the dominant colours from each thumbnail and merge them into
-  one palette.
-- **Vision:** describe each thumbnail in structured JSON: layout, face position
-  and size, expression, word count, text style and recurring elements. Batch 4–5
-  thumbnails per call.
-- **Text call:** merge those descriptions into one `BrandKit`, with evidence (which
-  thumbnails show each habit).
-- **Output:** `brand.json`. It is readable and editable, so the creator can fix
-  anything the agent got wrong.
-- **Check:** show `brand.json` to the creator and ask "Is this you?" If they
-  say no, fix the extraction before building anything on top of it.
+The strategist and art director can be merged into one call if the evals show no loss.
 
-### S2. Photo prep
+## 5. Stages
 
-- Remove the background from each HD photo, keeping full resolution (local
-  library, free).
-- Vision on a **downscaled** copy: expression, gaze direction, framing, face
-  bounding box, and which side has empty space for text.
-- **Output:** an asset library of cutout PNGs plus tags.
-- **Check:** a contact sheet of the cutouts with their tags. Look at hair edges
-  especially.
+Each stage has a visible output, so it can be checked by eye before the next one is built.
 
-### S3. Reference digest
+### Setup
 
-- Vision on the 10 references: layout type, word count, emotion, colour
-  strategy, and *why* it makes you click.
-- Merge into "patterns worth borrowing" and "don't copy" notes, stored as text
-  and reused on every run.
-- **Later:** if the reference library grows to hundreds, embed the thumbnails
-  and pull only the closest ones for each brief. That is the retrieval concept.
-- **Check:** read the notes. Would a designer agree with them?
+**S1. Analyze thumbnails (vision).** Each thumbnail, plus its title, becomes a
+`ThumbnailNote`: layout, face (position, size, expression), text (exact words,
+word count, style), objects, colours and topic. Batch 4–5 thumbnails per call.
+*Check:* the notes table matches what you see.
 
-### S4. Plan concepts
+**S2. Reference types.** One text call groups the notes into **3–7 reference
+types**. Examples: "Shocked face + 2-word claim", "Tool logo vs. tool logo",
+"Before / after split", "Screenshot + red arrow". Each type has a name, a "use
+when" (which kinds of concepts it suits), a visual recipe, and example thumbnail
+ids. *Check:* the creator agrees these are their styles, and can edit them.
 
-- One text call takes the brief, brand kit, reference notes and asset tags, and
-  returns **3 concepts that genuinely differ** in template, emotion and hook angle.
-  The output is validated JSON.
-- **Rules:** the headline has at most N words (N comes from the brand kit,
-  default 4), and it must not repeat the video title.
-- **Check:** the JSON passes the schema, and the 3 concepts differ from each other.
+**S3. Brand kit.** Palette (from the model, cross-checked by pixel colours in
+code), text style, face style, recurring elements, and things to avoid. *Check:*
+"Is this you?"
 
-### S5. Render (a tool)
+**S4. Tag photos.** Expression, gaze, framing, and which side is empty. The model
+only needs a small copy of each photo. The image generator gets the full HD photo.
 
-- Concept JSON + template → HTML → headless Chromium screenshot → 1280×720 PNG.
-- **v1 templates:** face-left/text-right, face-right/text-left, face-centre/text-top,
-  split before/after, and big number.
-- The brand kit supplies the fonts, colours, text stroke and shadow.
-- **Background options:** brand gradient, a user image (blurred or darkened), or
-  AI-generated (an optional tool).
-- **Check:** the PNG matches the concept. Tamil text renders correctly, with no
-  tofu boxes and no broken letter joins.
+### Generate
 
-### S6. Guardrails (code only, no model call)
+**G1. Brief.** User prompt → `Brief`: hook, emotion, headline (≤ N words, never
+the full title), key objects, and angle. This is validated JSON.
 
-| Check | Rule (starting value, tune in Phase 3) |
+**G2. Pick reference.** The model chooses the reference type whose "use when"
+fits the brief, and explains why. Then it chooses 2–3 example thumbnails of that
+type, and the creator photo whose expression matches the emotion. With 20–30
+thumbnails the model can pick directly. With hundreds, **embeddings** find the
+closest examples first, which is the retrieval concept. For 3 options, it picks
+the top 2–3 types, or one type with 3 variations.
+
+**G3. Image prompt.** One structured prompt for the image model:
+- **Image 1 is the creator.** Keep the same person, face, hair and skin tone.
+- **Images 2–3 are style references.** Match their layout, framing, colour
+  treatment and text styling. Do **not** copy their text, people or logos.
+- **Composition:** where the face goes and how big it is, the background, and props.
+- **Text:** the exact headline in quotes, plus its position and style. Or no
+  text at all when we overlay it with code (Tamil, or fallback).
+- **Brand:** palette and recurring elements from the brand kit.
+- **Format:** 16:9, high contrast, readable at phone size.
+
+**G4. Generate (tool).** `generate_thumbnail(prompt, images[])` calls the chosen
+provider, then code resizes the result to exactly 1280×720.
+
+**G5. Guardrails (code, no model call).**
+- Aspect ratio and size are correct, and the file is under 2 MB.
+- The headline length is within limits (checked before generating).
+- **Cost cap:** at most 9 image calls per run (3 options × 1 generate + 2 edits).
+- **Round cap:** 2 refine rounds per option.
+- **Text overlay mode** (Tamil/fallback): the font actually rendered, with no
+  broken glyphs.
+
+**G6. Critique (vision).** The critic sees the render at full size **and** at
+phone size (about 320×180), next to the creator's real photo. It scores:
+
+| Rubric | What it means |
 | --- | --- |
-| Size | Exactly 1280×720, file size under 2 MB |
-| Headline length | ≤ N words |
-| Text size | Rendered text height ≥ ~8% of the canvas height |
-| Contrast | Text against the pixels behind it ≥ 4.5:1 |
-| Face | The text box doesn't overlap the face bounding box |
-| Duration badge | Nothing important in the bottom-right corner, where YouTube shows the video length |
-| Safe margins | Text stays inside the margins |
-| Font loaded | The real font rendered, not a fallback (catches broken Tamil) |
+| Face match | Is it clearly the same person? |
+| Text accuracy | Does the rendered text exactly match the headline? |
+| Phone readability | Can you read it at 320×180? |
+| Reference match | Does it look like the chosen style? |
+| Brand match | Does it look like this channel? |
+| Curiosity | Would you want to click? |
+| Clutter | Is it clean, with one idea? |
+| Badge zone | Is anything important in the bottom-right corner, where YouTube shows the duration? |
 
-A failed check goes back as a specific fix, such as "headline too small, raise
-it to X". It costs no model call.
+It returns `ship` or `revise`, with **one specific edit instruction** (e.g.
+"Make the headline 30% larger and move it top-left. Keep everything else.").
+Face match and text accuracy are **hard gates**: an option fails if either one
+fails, whatever the other scores are.
 
-### S7. Critique (vision)
+**G7. Refine (tool).** `edit_thumbnail(image, instruction, creatorPhoto)` calls
+the image model again with the current render plus the instruction. The creator
+photo goes in again to anchor the face. We keep the **best** version, not the
+last one, because edits can make things worse.
 
-- The model sees the render **twice**: at full size and at phone size (about
-  320×180).
-- **Rubric, scored 1–5:** readable at small size, face and emotion impact,
-  contrast and pop, brand match, curiosity gap, and clutter.
-- **Returns:** `ship` or `revise`, plus fixes written as patches to the concept
-  JSON.
-- The critic uses a **separate prompt** from the planner, so it doesn't just
-  approve its own work.
-- **Check (important):** feed it deliberately broken thumbnails (tiny text,
-  covered face, low contrast). If it can't catch the problems we planted, the
-  loop is just for show.
+**G8. Results + memory.** 3 options, with scores, round history, the chosen
+reference type and the reason it was chosen. When the creator picks one, the
+pick and the reason are saved, and they shape future style picks.
 
-### S8. Results and memory
+### Tools the agent can call (generate loop)
 
-- A static HTML page shows the 3 finals, their scores, before and after for
-  each round, PNG downloads, and a "pick this one" button.
-- The creator's pick, and the reason, is saved to memory. It nudges the brand
-  kit and future planning.
-
-### Loop control (per concept)
-
-- Up to **3** revise rounds.
-- Stop when guardrails pass **and** the overall score is ≥ 4 (tune this later).
-- Stop early if the score doesn't improve from one round to the next.
-- Always return the best version, not the last one.
-
-### Tools the agent can call
-
-| Tool | What it does |
+| Tool | Does |
 | --- | --- |
-| `render_thumbnail(concept)` | Returns the PNG and the layout boxes (text and face positions) |
-| `check_guardrails(render)` | Returns pass or fail with a list of fixes |
-| `critique(render)` | Returns rubric scores, a verdict and JSON patches |
-| `find_photo(query)` | Picks a photo from the asset library by expression or framing |
-| `generate_background(prompt)` | Optional. Only if image generation is available |
+| `pick_reference(brief)` | Returns a reference type, example ids, a photo id and the reason |
+| `generate_thumbnail(prompt, images)` | Returns a 1280×720 PNG |
+| `edit_thumbnail(image, instruction, photo)` | Returns the edited PNG |
+| `check_guardrails(image)` | Returns pass or fail with reasons |
+| `critique(image, brief)` | Returns rubric scores, a verdict and an edit instruction |
+| `overlay_text(image, headline, style)` | Draws text in code, for Tamil or as a fallback |
 
-## 5. Data contracts
+## 6. Image generation
 
-These double as schemas. In the app they become zod schemas, so every model
-output is validated.
+| | OpenAI | Gemini |
+| --- | --- | --- |
+| Model (config) | `gpt-image-2` (released June 2026) or `gpt-image-1` | Nano Banana Pro (`gemini-3-pro-image…`) or a Flash image model |
+| Reference images | Edits accept multiple input images (up to 16 reported) | Multi-image input supported |
+| Through AI SDK | Image models use `generateImage` | Gemini image models return images from `generateText` as `result.files` |
+| Free API tier | No | **No** for Nano Banana Pro (0 RPM on the free tier, roughly $0.13 per 1K/2K image on the paid tier) |
+
+**Things to know:**
+- **Image generation costs money with both providers.** Text and vision steps
+  (analysis, brief, critique) can stay on Gemini's free tier. Only G4 and G7
+  need billing. A run with the cap above makes at most 9 image calls. Measure the
+  real cost per run in Phase 1 before saying any number on camera, and check
+  current prices in each console. Viewers will need billing enabled too, so the
+  setup episode must say that clearly.
+- **This sandbox can reach Gemini's API, but `api.openai.com` is blocked** by the
+  environment's network policy. Allow it before we test OpenAI here.
+- **Text:** both providers now render English text well. That is a measured
+  claim to check (critic: text accuracy). Tamil is the risky one, so plan on
+  code overlay for Tamil unless the spike proves otherwise.
+- **Face:** identity drift is the biggest risk for a creator tool. If face match
+  keeps failing, the fallback is to generate the scene **without** the person
+  and composite the real photo cutout in code.
+
+## 7. Data contracts
+
+These become zod schemas in the app, so every model output is validated.
 
 ```ts
-type BrandKit = {
-  palette: { primary: string; accent: string; text: string; backgrounds: string[] };
-  typography: {
-    feel: "heavy-sans" | "condensed" | "handwritten" | "serif" | "mixed";
-    case: "upper" | "title" | "sentence";
-    stroke: boolean;
-    shadowOrGlow: boolean;
-    fontCandidates: string[];      // free fonts that match, e.g. from Google Fonts
-  };
-  layoutHabits: {
-    facePosition: "left" | "right" | "center" | "none";
-    faceScale: "close-up" | "half-body" | "full";
-    textPosition: "top" | "left" | "right" | "bottom";
-    typicalWordCount: number;
-  };
-  recurringElements: string[];     // arrows, circles, logos, emoji, borders
-  mood: string;
-  avoid: string[];
-  evidence: { thumbnailId: string; note: string }[];
-};
-
-type PhotoAsset = {
-  id: string;
-  cutoutPath: string;              // full-res transparent PNG
-  expression: string;              // "shocked", "smiling", "pointing right", ...
+type CreatorPhoto = {
+  id: string; path: string;                       // full-res original
+  expression: string;                             // "shocked", "smiling", "pointing right"
   gaze: "left" | "right" | "camera";
   framing: "close-up" | "half-body";
-  faceBox: { x: number; y: number; w: number; h: number };  // 0–1, relative
   emptySide: "left" | "right" | "none";
 };
 
-type ThumbnailConcept = {
-  id: string;
-  template: "face-left" | "face-right" | "face-center-top" | "split" | "big-number";
-  headline: string;                // ≤ N words, never the full video title
-  highlightWord?: string;          // the one word in accent colour
-  subtext?: string;
-  photoId: string;
-  background: { kind: "gradient" | "image" | "ai"; value: string };
-  accentColor: string;
-  hookAngle: string;               // the curiosity gap, in one line
-  rationale: string;
+type ThumbnailNote = {
+  id: string; title?: string;
+  layout: string;                                 // "face right, text left, object centre"
+  face: { present: boolean; position?: "left" | "right" | "center"; size?: "small" | "medium" | "large"; expression?: string };
+  text: { words: string; wordCount: number; style: string };
+  objects: string[];                              // logos, arrows, screenshots, props
+  colors: string[];
+  topic: string;
+};
+
+type ReferenceType = {
+  id: string; name: string;                       // "Shocked face + 2-word claim"
+  description: string;
+  useWhen: string[];                              // concept signals this style suits
+  recipe: string;                                 // how to build it, for the image prompt
+  exampleIds: string[];
+};
+
+type BrandKit = {
+  palette: { primary: string; accent: string; text: string; backgrounds: string[] };
+  textStyle: string;                              // "heavy white sans, black stroke, 2–3 words"
+  faceStyle: string;                              // "close-up, exaggerated emotion, right third"
+  recurring: string[];
+  avoid: string[];
+};
+
+type Brief = {
+  concept: string;                                // the user prompt, verbatim
+  hook: string; emotion: string;
+  headline: string;                               // ≤ N words
+  keyObjects: string[]; angle: string;
+  language: "en" | "ta" | "tanglish";
+};
+
+type ReferencePick = { typeId: string; exampleIds: string[]; photoId: string; reason: string };
+
+type ImagePrompt = {
+  prompt: string;
+  images: { role: "creator" | "reference"; id: string }[];
+  textMode: "model" | "overlay";
 };
 
 type Critique = {
   scores: {
-    readabilitySmall: number; faceImpact: number; contrast: number;
-    brandMatch: number; curiosity: number; clutter: number;   // each 1–5
+    faceMatch: number; textAccuracy: number; phoneReadability: number;
+    referenceMatch: number; brandMatch: number; curiosity: number; clutter: number;  // 1–5
   };
+  badgeZoneClear: boolean;
   overall: number;
   verdict: "ship" | "revise";
-  fixes: { field: keyof ThumbnailConcept; change: string; reason: string }[];
+  editInstruction?: string;
 };
 ```
 
-## 6. Evals: how we know it got better
+## 8. Evals: how we know it got better
 
-- **Test set:** 10 briefs from the creator's real past videos. We already have
-  the real thumbnail for each one to compare against.
-- **Measured on every run:**
-  - guardrail pass rate on the first try
-  - final rubric score, from a separate judge prompt
-  - rounds needed
-  - time and model calls per thumbnail
+- **Test set:** 10 concepts taken from the creator's real past videos. We have
+  their real thumbnails, which gives us something to compare against.
+- **Measured per run:**
+  - face match pass rate
+  - text accuracy pass rate
+  - critic score from a separate judge prompt
+  - rounds used
+  - **cost and time per run**
   - **blind pairwise pick: agent vs. the creator's real thumbnail.** You plus 2–3
-    people answer "which would you click?" This is the number that matters most.
-- **Pairwise beats absolute.** Model judges are inconsistent on 1–5 scales and
-  much more reliable at "A or B?"
-- **Version every change.** Change one thing, rerun the set, and log it in
-  `evals/results.md`. That table is the "watch it get better" story for the series.
-- **Final real-world proof:** YouTube Studio's *Test & Compare* on a real upload,
-  agent thumbnail vs. handmade.
+    people answer "which would you click?" This number matters most.
+- **Pairwise beats absolute.** Model judges are much steadier at "A or B?" than on 1–5 scales.
+- **Change one thing at a time** (a prompt version, a model, a reference
+  strategy), rerun the set, and log it in `evals/results.md`. That table is the
+  "watch it improve" story for the series.
+- **Real-world proof:** YouTube Studio's *Test & Compare* on a real upload, agent vs. handmade.
 
-## 7. Stack (recommended)
+## 9. Stack
 
-| Part | Choice | Why |
-| --- | --- | --- |
-| Language | TypeScript, front to back | One language for beginners. Matches the series plan |
-| App | Next.js | UI and API in one project, deploys to Vercel |
-| Agent | Vercel AI SDK | Tool calling, structured output and streaming are built in |
-| Model | Gemini (text + vision) | Free tier for building. Model id stays in config |
-| Schemas | zod | Validates every model output |
-| Render | Headless Chromium (Playwright) | Real browser text shaping, so Tamil renders correctly |
-| Image ops | sharp | Resize, crop and sample contrast |
-| Cutouts | A local background-removal library | Free, runs offline. Pick one in a spike |
+| Part | Choice |
+| --- | --- |
+| App | Next.js (App Router), TypeScript |
+| AI | Vercel AI SDK. Text and vision on Gemini (free tier while building), images on OpenAI or Gemini via `IMAGE_PROVIDER` |
+| Schemas | zod |
+| Image ops | sharp (resize to 1280×720, phone-size copy, compositing) |
+| Text overlay | HTML/CSS rendered in headless Chromium (handles Tamil correctly) |
+| Storage | Local files while building. Vercel Blob (or similar) when deployed |
+| UI theme | claude.dev look, in light mode (see `design/`) |
+| Deploy | Vercel, linked from mugilans.in or ageofagi.in |
 
-**Why not satori/@vercel/og for rendering?** It is lighter and easier to deploy,
-but it lays out text itself, and complex scripts like Tamil may not join
-correctly. If Spike 2 shows it handles Tamil fine, we can switch.
+Config, all in env: `TEXT_MODEL`, `IMAGE_PROVIDER`, `IMAGE_MODEL`,
+`GOOGLE_GENERATIVE_AI_API_KEY`, `OPENAI_API_KEY`, `MAX_IMAGE_CALLS`.
 
-## 8. Risks (Phase 1 spikes)
+## 10. Phase 1 spikes (run these before building the app)
 
-We test these first, each on its own, before building the full app.
+| # | Question | How we test | Pass when |
+| --- | --- | --- | --- |
+| 1 | **Face:** does the creator still look like himself? | 5 concepts × 2 providers, one photo as input | You say "that's him" on at least 4 of 5 |
+| 2 | **Style:** does the output follow a reference type without copying it? | Same 5 concepts, 2–3 reference thumbnails as input | It reads as "his channel", and no reference text or face is copied |
+| 3 | **Text:** English spelling, and Tamil | 10 headlines in each language | English always correct. Tamil decides overlay vs. model |
+| 4 | **Critic:** does it catch planted problems? | Wrong face, a misspelled word, tiny text, a cluttered image | It catches every planted problem |
+| 5 | **SDK:** can AI SDK pass reference images to both providers? | One call per provider | It works, or we call the provider SDK inside our tool |
+| 6 | **Cost:** what does one run cost? | Log the calls in spikes 1–3 | A number per run, per provider |
 
-1. **Brand extraction:** Can vision describe 15–30 thumbnails accurately enough
-   that the creator says "yes, that's my style"?
-2. **Rendering quality:** Does an HTML/CSS thumbnail with a real cutout look
-   professional, in English and Tamil? Which free Tamil display fonts work
-   (Noto Sans Tamil, Mukta Malar, Catamaran, Hind Madurai, Coiny...)?
-3. **Critique is real:** Does the critic catch planted problems: tiny text, a
-   covered face, low contrast and clutter? If not, the self-critique loop (our
-   best episode) has nothing to show.
-4. **Free tier:** Do the rate limits survive a brand extraction burst? Is any
-   image model on the free tier today? Check in AI Studio, not in blog posts.
+## 11. What we need from you
 
-Smaller unknowns: cutout quality on hair, and running Chromium on Vercel. That
-second one gets settled at the deploy stage, either with serverless Chromium or
-with a small separate render service.
-
-## 9. Open questions for you
-
-1. **Test creator:** we start with your own channel. Send the channel URL, 5–15 HD
-   photos and 10 reference thumbnails. This repo is public, so photos can't be
-   committed here. Choose how to share them: a private repo, a drive link, or
-   uploads into this session.
-2. **Thumbnail text language:** English, Tamil, Tanglish, or the creator's choice per video?
-3. **Stack:** are you OK with TypeScript + Vercel AI SDK (the recommendation above)?
-4. **Gemini key:** do you have one for the spikes? Also check in AI Studio whether
-   any image model has free quota right now.
+1. **Theme source:** add `claude.dev` to this environment's allowed domains, or
+   paste the site's CSS. Until then, the design tokens are provisional.
+2. **The creator:**
+   - His consent to use his face and thumbnails.
+   - 3–5 HD photos.
+   - 20–30 past thumbnails **with their video titles**. The titles become the
+     eval set.
+   - Share these through a **private** repo or a folder, not this public repo.
+3. **API keys**, stored as environment secrets (never pasted in chat):
+   `GOOGLE_GENERATIVE_AI_API_KEY`, plus `OPENAI_API_KEY` if we test OpenAI.
+   Turn on billing for image generation.
+4. **Network:** allow `api.openai.com` if we test OpenAI.
+5. **Thumbnail text language** for this creator.
+6. **Budget cap** per month for image generation while we build and run evals.
