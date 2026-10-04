@@ -53,13 +53,14 @@ images, score jumps) becomes the raw material for the "proof" beat in every reel
 
 ```
 thumbnail-agent/
+  HANDOFF.md           # current status, decisions, next steps: read this first
   docs/
     system-design.md   # architecture, prompts, stages, data contracts, evals, spikes
     concepts.md        # 15 concepts x 15 builds: the episode plan
     episode-kit.md     # what each episode contains: reel, page, build prompt, output
   design/              # theme tokens + HTML prototypes (app screens, episode page)
+  spikes/              # Phase 1 experiments: setup stage, critic, image calls (TypeScript, AI SDK v7)
   # added in later phases:
-  spikes/              # Phase 1 throwaway experiments
   app/                 # the agent and its UI
   evals/               # test briefs and the results log per version
   episodes/            # one folder per episode: script, build prompt, page

@@ -1,0 +1,21 @@
+{
+  "name": "thumbnail-agent-spikes",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "refs": "bash make_refs.sh",
+    "setup": "tsx src/setup.ts epaphraa",
+    "critic": "tsx src/s4_critic.ts",
+    "smoke": "tsx src/s5_smoke.ts",
+    "typecheck": "tsc --noEmit --allowImportingTsExtensions --module nodenext --moduleResolution nodenext --target es2022 --strict --skipLibCheck src/*.ts"
+  },
+  "dependencies": {
+    "@ai-sdk/google": "^4.0.87",
+    "@types/node": "^26.6.4",
+    "ai": "^7.0.127",
+    "sharp": "^0.35.5",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2",
+    "zod": "^4.6.5"
+  }
+}
