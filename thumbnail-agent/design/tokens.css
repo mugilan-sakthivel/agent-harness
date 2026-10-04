@@ -207,7 +207,7 @@
   --h-code:         28rem;    /* tall code blocks scroll after this */
   --h-msg:          3.5rem;   /* message slot in the step player */
   --h-out:          9rem;     /* output slot in the step player */
-  --h-out-reel:     40cqi;    /* output slot in reel mode */
+  --h-out-reel:     30cqi;    /* output slot in reel mode */
   --h-caption:      6.5rem;   /* caption area, so steps don't jump */
 
   --ratio-thumb:   16 / 9;    /* ours: YouTube thumbnail */
@@ -224,8 +224,8 @@
   --thumb-pad:       5cqi;    /* ours: safe margin */
 
   /* Reel mode type, relative to the 9:16 frame width */
-  --reel-caption: 6.4cqi;   /* ours */
-  --reel-body:    3.7cqi;   /* ours */
+  --reel-caption: 5.8cqi;   /* ours */
+  --reel-body:    3.5cqi;   /* ours */
   --reel-meta:    2.9cqi;   /* ours */
   --reel-pad:     6cqi;     /* ours */
 

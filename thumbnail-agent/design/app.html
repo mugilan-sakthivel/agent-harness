@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Thumbnail Designer</title>
+<meta name="description" content="Thumbnail Agent prototype: creator setup, generate, and results, with sample data for a Tamil tech channel.">
+<meta name="theme-color" content="#faf9f5">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Hanken+Grotesk:ital,wght@0,400..900;1,400..600&family=Noto+Sans+Tamil:wght@400..700&display=swap">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="app" data-app>
+<header class="site-header app-header">
+  <div class="wrap site-header__inner">
+    <a class="brand" href="#generate" aria-label="mugilans.in, Thumbnail Agent">
+      <span class="brand__mark" aria-hidden="true"></span>
+      <span class="brand__site">mugilans.in</span>
+      <span class="brand__sep" aria-hidden="true">/</span>
+      <span class="brand__name">Thumbnail Agent</span>
+    </a>
+    <nav class="tabs" aria-label="Views">
+      <a class="tab" href="#setup" data-view-link="setup">Setup</a>
+      <a class="tab" href="#generate" data-view-link="generate">Generate</a>
+      <a class="tab" href="#results" data-view-link="results">Results<span class="tab__count">3</span></a>
+    </nav>
+    <div class="site-header__end">
+      <button class="btn btn--search" type="button" data-cmdk-open aria-keyshortcuts="Meta+K Control+K" aria-label="Search views and recent concepts">
+        <svg class="btn__icon" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="4.5" fill="none" stroke="currentColor" stroke-width="1.25"/><path d="M10.5 10.5 14 14" stroke="currentColor" stroke-width="1.25"/></svg>
+        <span class="hide-sm">Search</span>
+        <span class="kbd hide-sm" data-mod-k>⌘K</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main" class="wrap">
+
+  <!-- ===================================================== (a) Setup -->
+  <section class="view" id="view-setup" data-view="setup" aria-labelledby="setup-title" hidden>
+    <header class="view__head">
+      <p class="eyebrow">Setup · <strong>runs once per creator</strong></p>
+      <h1 id="setup-title">Creator setup</h1>
+      <p class="lede">Add your photos and past thumbnails. The agent finds your thumbnail styles and your brand kit, and uses them for every video after this.</p>
+      <p class="meta"><span>Sample creator <strong>Arivu Labs</strong> · Tamil tech</span><span>Last analysed <strong>2 Oct 2026, 21:14</strong></span></p>
+    </header>
+
+    <ol class="steps" aria-label="Setup steps">
+      <li class="steps__item"><span class="steps__name">Analyze thumbnails <span class="status" data-status="done">done</span></span><span class="steps__detail">27 thumbnails → 27 notes · 6 vision calls · 38s</span></li>
+      <li class="steps__item"><span class="steps__name">Reference types <span class="status" data-status="done">done</span></span><span class="steps__detail">5 types · 1 thumbnail fits none</span></li>
+      <li class="steps__item"><span class="steps__name">Brand kit <span class="status" data-status="done">done</span></span><span class="steps__detail">palette checked against pixel colours</span></li>
+    </ol>
+
+    <div class="grid-2 after">
+      <section class="panel" aria-labelledby="photos-title">
+        <div class="panel__bar"><span id="photos-title">your photos · 4 of 5</span><span class="muted">HD · different expressions</span></div>
+        <div class="panel__body stack">
+          <div class="photos">
+            <figure class="photo"><div class="photo__img"><span class="thumb__person thumb__person--smile" aria-hidden="true"></span></div><figcaption><strong>Smiling</strong>eyes to camera</figcaption></figure>
+            <figure class="photo"><div class="photo__img"><span class="thumb__person" aria-hidden="true"></span></div><figcaption><strong>Shocked</strong>eyes to camera</figcaption></figure>
+            <figure class="photo"><div class="photo__img"><span class="thumb__person thumb__person--smile thumb__person--left" aria-hidden="true"></span></div><figcaption><strong>Pointing right</strong>space on right</figcaption></figure>
+            <figure class="photo"><div class="photo__img"><span class="thumb__person thumb__person--right" aria-hidden="true"></span></div><figcaption><strong>Thinking</strong>looks left</figcaption></figure>
+          </div>
+          <label class="dropzone" for="photo-input" data-drop>
+            <input type="file" id="photo-input" accept="image/jpeg,image/png" multiple>
+            <span class="dropzone__title">Add a photo</span>
+            <span>Drop it here or browse. JPG or PNG, at least 1080 px tall, face clearly lit.</span>
+            <span class="field__hint" data-drop-status>1 slot left · photos stay private</span>
+          </label>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="thumbs-title">
+        <div class="panel__bar"><span id="thumbs-title">past thumbnails · 27</span><span class="muted">with video titles</span></div>
+        <div class="panel__body stack">
+          <div class="field">
+            <label class="label" for="channel-url">Channel URL</label>
+            <div class="input-row">
+              <input class="input" id="channel-url" type="url" value="https://www.youtube.com/@arivulabs" autocomplete="off">
+              <button class="btn" type="button" data-fetch>Fetch latest 30</button>
+            </div>
+            <p class="field__hint" data-fetch-status>27 fetched with titles · 3 Shorts skipped</p>
+          </div>
+          <div class="thumb-grid" data-thumb-grid></div>
+          <label class="dropzone" for="thumb-input" data-drop>
+            <input type="file" id="thumb-input" accept="image/jpeg,image/png" multiple>
+            <span class="dropzone__title">Or upload thumbnails</span>
+            <span>10–30 images, 1280×720. Add the video title in the file name if you can.</span>
+            <span class="field__hint" data-drop-status>titles help the agent learn which styles get views</span>
+          </label>
+        </div>
+      </section>
+    </div>
+
+    <section class="section after" aria-labelledby="types-title">
+      <div class="section__head">
+        <h2 id="types-title">Your thumbnail styles</h2>
+        <span class="label">5 reference types · from 27 thumbnails</span>
+      </div>
+      <p class="muted after-sm">The agent picks one of these for every new video. Rename, merge or remove any it got wrong.</p>
+      <div class="reftypes">
+        <article class="reftype">
+          <header class="reftype__head"><h3 class="reftype__name">Shocked face + 2-word claim</h3><span class="reftype__count">9 thumbnails</span></header>
+          <div class="strip">
+            <div data-t="claim" data-h="GPT-5 <em>FLOP?</em>"></div>
+            <div data-t="claim" data-h="<em>FREE</em> FOREVER?" data-face="smile"></div>
+            <div data-t="claim" data-h="RIP <em>GOOGLE?</em>"></div>
+          </div>
+          <p class="reftype__when"><span class="label">use when</span>A surprising result or a strong opinion you can say in two words.</p>
+          <div class="reftype__foot"><span class="label">3 in your top 5 by views</span><button class="btn btn--ghost" type="button" data-rename>Rename</button></div>
+        </article>
+        <article class="reftype">
+          <header class="reftype__head"><h3 class="reftype__name">Tool vs. tool</h3><span class="reftype__count">6 thumbnails</span></header>
+          <div class="strip">
+            <div data-t="versus" data-h="WHO <em>WINS?</em>"></div>
+            <div data-t="versus" data-h="<em>₹0</em> VS ₹1,999"></div>
+            <div data-t="versus" data-h="CURSOR VS <em>COPILOT</em>"></div>
+          </div>
+          <p class="reftype__when"><span class="label">use when</span>You compare two apps, models or phones head to head.</p>
+          <div class="reftype__foot"><span class="label">1 in your top 5</span><button class="btn btn--ghost" type="button" data-rename>Rename</button></div>
+        </article>
+        <article class="reftype">
+          <header class="reftype__head"><h3 class="reftype__name">Screenshot + red arrow</h3><span class="reftype__count">5 thumbnails</span></header>
+          <div class="strip">
+            <div data-t="screen" data-h="HIDDEN <em>SETTING</em>"></div>
+            <div data-t="screen" data-h="DELETE <em>THIS</em>"></div>
+            <div data-t="screen" data-h="<em>BUG</em> FOUND"></div>
+          </div>
+          <p class="reftype__when"><span class="label">use when</span>The proof is on screen: a demo, a bug, a setting people miss.</p>
+          <div class="reftype__foot"><span class="label">0 in your top 5</span><button class="btn btn--ghost" type="button" data-rename>Rename</button></div>
+        </article>
+        <article class="reftype">
+          <header class="reftype__head"><h3 class="reftype__name">Lineup + winner</h3><span class="reftype__count">4 thumbnails</span></header>
+          <div class="strip">
+            <div data-t="lineup" data-h="ONLY <em>ONE</em> WORKS"></div>
+            <div data-t="lineup" data-h="5 TOOLS <em>1</em> WINNER"></div>
+            <div data-t="lineup" data-h="<em>BEST</em> AI PHONE?"></div>
+          </div>
+          <p class="reftype__when"><span class="label">use when</span>You test several things and one of them stands out.</p>
+          <div class="reftype__foot"><span class="label">2 in your top 5</span><button class="btn btn--ghost" type="button" data-rename>Rename</button></div>
+        </article>
+        <article class="reftype">
+          <header class="reftype__head"><h3 class="reftype__name">Big number</h3><span class="reftype__count">3 thumbnails</span></header>
+          <div class="strip">
+            <div data-t="number" data-h="₹0"></div>
+            <div data-t="number" data-h="10×"></div>
+            <div data-t="number" data-h="24h"></div>
+          </div>
+          <p class="reftype__when"><span class="label">use when</span>A price, a speed or a count is the hook.</p>
+          <div class="reftype__foot"><span class="label">0 in your top 5</span><button class="btn btn--ghost" type="button" data-rename>Rename</button></div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="brand-title">
+      <div class="section__head">
+        <h2 id="brand-title">Brand kit</h2>
+        <span class="label">brand.json · you can edit every line</span>
+      </div>
+      <div class="panel">
+        <div class="panel__bar"><span>brand.json · from 27 thumbnails</span><span class="muted">v1</span></div>
+        <div class="panel__body stack stack--lg">
+          <div class="stack stack--sm">
+            <span class="label">palette</span>
+            <div class="swatches">
+              <div class="swatch-chip"><span class="swatch-chip__color" style="background: var(--art-navy)"></span><span class="swatch-chip__text"><strong>Primary</strong>#0B1A33 · deep navy</span></div>
+              <div class="swatch-chip"><span class="swatch-chip__color" style="background: var(--art-yellow)"></span><span class="swatch-chip__text"><strong>Accent</strong>#FFD21F · yellow</span></div>
+              <div class="swatch-chip"><span class="swatch-chip__color" style="background: var(--art-white)"></span><span class="swatch-chip__text"><strong>Text</strong>#FFFFFF · white</span></div>
+              <div class="swatch-chip"><span class="swatch-chip__color" style="background: var(--art-navy-2)"></span><span class="swatch-chip__text"><strong>Background</strong>#17325E · navy 2</span></div>
+              <div class="swatch-chip"><span class="swatch-chip__color" style="background: var(--art-red)"></span><span class="swatch-chip__text"><strong>Marks</strong>#E8412C · red</span></div>
+            </div>
+          </div>
+          <dl class="kv">
+            <div class="kv__row"><dt>text style</dt><dd>Heavy sans, all caps, white with a black stroke. One word in yellow. 2–3 words, never more than 4.</dd></div>
+            <div class="kv__row"><dt>face style</dt><dd>Close-up in the left third, big expression, eyes to camera. Thin white rim around the cut-out.</dd></div>
+            <div class="kv__row"><dt>recurring</dt><dd><div class="tags"><span class="chip">red circle</span><span class="chip">red arrow</span><span class="chip">tool logos</span><span class="chip">one yellow word</span></div></dd></div>
+            <div class="kv__row"><dt>avoid</dt><dd>Text over the face · anything in the bottom-right corner · a second accent colour · purple</dd></div>
+          </dl>
+        </div>
+        <div class="panel__foot">
+          <span class="label" data-brand-status>Is this you?</span>
+          <div class="cluster">
+            <button class="btn" type="button">Edit brand.json</button>
+            <button class="btn btn--primary" type="button" data-confirm-brand>Yes, this is me</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <!-- ===================================================== (b) Generate -->
+  <section class="view" id="view-generate" data-view="generate" aria-labelledby="generate-title">
+    <header class="view__head">
+      <p class="eyebrow">Generate · <strong>Arivu Labs</strong> · run 14</p>
+      <h1 id="generate-title">What's the video about?</h1>
+      <p class="lede">Say it the way you'd tell a friend. The agent writes a brief, picks one of your styles and makes 3 options.</p>
+    </header>
+
+    <div class="gen-layout">
+      <form class="prompt ga-prompt" data-prompt-form>
+        <div class="panel__bar"><span>user prompt · your video concept</span><span class="muted num" data-char-count>58 / 280</span></div>
+        <label class="visually-hidden" for="concept">Video concept</label>
+        <textarea class="prompt__input" id="concept" name="concept" rows="3" maxlength="280">I let 5 AI agents build the same app, one of them cheated</textarea>
+        <div class="prompt__options">
+          <fieldset class="seg">
+            <legend class="label">Text language</legend>
+            <div class="seg__opts">
+              <label class="seg__opt"><input type="radio" name="lang" value="en"><span>English</span></label>
+              <label class="seg__opt"><input type="radio" name="lang" value="ta"><span>Tamil</span></label>
+              <label class="seg__opt"><input type="radio" name="lang" value="tanglish" checked><span>Tanglish</span></label>
+            </div>
+            <p class="field__hint" data-lang-hint>The image model draws the text. The critic checks the spelling.</p>
+          </fieldset>
+          <fieldset class="seg">
+            <legend class="label">Image provider</legend>
+            <div class="seg__opts">
+              <label class="seg__opt"><input type="radio" name="provider" value="gemini" checked><span>Gemini</span></label>
+              <label class="seg__opt"><input type="radio" name="provider" value="openai"><span>OpenAI</span></label>
+            </div>
+            <p class="field__hint" data-provider-hint>IMAGE_MODEL from .env · up to 9 image calls a run</p>
+          </fieldset>
+        </div>
+        <div class="prompt__run">
+          <p class="field__hint">3 options · up to 2 refine rounds each</p>
+          <button class="btn btn--primary btn--lg" type="submit" data-run>Run <span class="kbd hide-sm" data-mod-enter>⌘↵</span></button>
+        </div>
+      </form>
+
+      <section class="panel ga-trace" aria-labelledby="trace-title">
+        <div class="panel__bar"><span id="trace-title">agent trace · run 14</span><span class="muted" data-trace-status>done · 45.6s</span></div>
+        <ol class="trace" data-trace></ol>
+        <div class="panel__foot">
+          <span class="label" data-trace-calls>5 of 9 image calls used</span>
+          <a class="btn" href="#results" data-to-results>See 3 options →</a>
+        </div>
+      </section>
+
+      <section class="panel ga-brief" data-stale-while-running aria-labelledby="brief-title">
+        <div class="panel__bar"><span id="brief-title">brief · strategist v3</span><span class="muted">validated JSON</span></div>
+        <div class="panel__body">
+          <dl class="kv">
+            <div class="kv__row"><dt>headline</dt><dd class="stack stack--sm"><span class="headline-sample">Oruthan <em>cheat</em> pannan</span><span class="label">3 words · limit 4 · not the title</span></dd></div>
+            <div class="kv__row"><dt>hook</dt><dd>5 agents, 1 app, 1 broke the rules</dd></div>
+            <div class="kv__row"><dt>emotion</dt><dd>Suspicious, then shocked</dd></div>
+            <div class="kv__row"><dt>key objects</dt><dd><div class="tags"><span class="chip">5 robots in a row</span><span class="chip">red circle on #4</span><span class="chip">laptop with the app</span></div></dd></div>
+            <div class="kv__row"><dt>angle</dt><dd>Point at the cheater before the viewer knows who it is</dd></div>
+            <div class="kv__row"><dt>language</dt><dd>Tanglish (Tamil in English letters)</dd></div>
+          </dl>
+        </div>
+      </section>
+
+      <div class="stack ga-pick" data-stale-while-running>
+        <section class="panel" aria-labelledby="pick-title">
+          <div class="panel__bar"><span id="pick-title">pick reference · art director</span><span class="muted">option A</span></div>
+          <div class="panel__body stack">
+            <div class="cluster cluster--spread"><h3 class="reftype__name">Lineup + winner</h3><span class="chip chip--accent">picked · fit 0.86</span></div>
+            <div class="strip strip--pick">
+              <div data-t="lineup" data-h="ONLY <em>ONE</em> WORKS" data-tag="#07"></div>
+              <div data-t="lineup" data-h="5 TOOLS <em>1</em> WINNER" data-tag="#19"></div>
+              <figure class="photo"><div class="photo__img photo__img--wide"><span class="thumb__person" aria-hidden="true"></span></div></figure>
+            </div>
+            <p class="reftype__when"><span class="label">why</span>The concept tests five things and singles one out. Your Lineup + winner thumbnails do exactly that, and 2 of those 4 are in your top 5 by views.</p>
+            <dl class="kv">
+              <div class="kv__row"><dt>photo</dt><dd>Photo 2 · shocked, eyes to camera, matches “suspicious, then shocked”</dd></div>
+              <div class="kv__row"><dt>other options</dt><dd>B uses Shocked face + 2-word claim (fit 0.74). C uses Screenshot + red arrow (fit 0.61).</dd></div>
+            </dl>
+          </div>
+        </section>
+
+        <section class="code" aria-labelledby="iprompt-title">
+          <div class="panel__bar panel__bar--tools">
+            <span id="iprompt-title">image prompt · option A · text mode: model</span>
+            <button class="btn" type="button" data-copy="#image-prompt">Copy</button>
+          </div>
+<pre id="image-prompt"><span class="c">images: [1] photo-2 (creator)  [2] #07  [3] #19</span>
+
+Image 1 is the creator. Keep the same person, face, hair and skin tone.
+Images 2–3 are style references (Lineup + winner). Match their layout,
+framing and colour treatment. Do not copy their text, people or logos.
+
+Composition: the creator close-up in the left third, shocked, eyes to
+camera. Right two-thirds: five small robots in a row on deep navy
+#0B1A33. Circle the fourth robot in red #E8412C.
+Text: <span class="k">"ORUTHAN CHEAT PANNAN"</span>, top right, heavy white sans with a
+black stroke, the word "CHEAT" in yellow #FFD21F.
+Keep the bottom-right corner empty.
+Format: 16:9, high contrast, readable at 320×180.</pre>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================================================== (c) Results -->
+  <section class="view" id="view-results" data-view="results" aria-labelledby="results-title" hidden>
+    <header class="view__head">
+      <p class="eyebrow">Results · <strong>run 14</strong> · Gemini</p>
+      <h1 id="results-title">3 options</h1>
+      <p class="lede">“I let 5 AI agents build the same app, one of them cheated”</p>
+    </header>
+
+    <div class="summary">
+      <div class="summary__item"><span class="label">best score</span><span class="summary__value">4.5 · Option A</span></div>
+      <div class="summary__item"><span class="label">image calls</span><span class="summary__value">5 of 9</span></div>
+      <div class="summary__item"><span class="label">refine rounds</span><span class="summary__value">2</span></div>
+      <div class="summary__item"><span class="label">time</span><span class="summary__value">45.6s</span></div>
+    </div>
+
+    <div class="results">
+      <article class="option" aria-labelledby="opt-a">
+        <div class="option__media"><div data-t="lineup" data-h="ORUTHAN <em>CHEAT</em> PANNAN" data-tag="A · v2" data-badge="14:32"></div></div>
+        <div class="option__body">
+          <div class="option__head">
+            <div><h2 class="option__title" id="opt-a">Option A</h2><p class="option__type">Lineup + winner · photo 2</p></div>
+            <div class="score" aria-label="Overall score 4.5 out of 5"><span class="score__value">4.5</span><span class="score__of">/ 5</span></div>
+          </div>
+          <div class="tags"><span class="chip chip--solid">top score</span><span class="chip chip--ok">face ✓</span><span class="chip chip--ok">text ✓</span><span class="chip">badge zone clear</span></div>
+          <ul class="meters" aria-label="Rubric scores">
+            <li class="meter meter--gate" style="--v: 4.6"><span class="meter__label">Face match</span><span class="meter__bar"></span><span class="meter__value">4.6</span></li>
+            <li class="meter meter--gate" style="--v: 5"><span class="meter__label">Text accuracy</span><span class="meter__bar"></span><span class="meter__value">5.0</span></li>
+            <li class="meter" style="--v: 4.3"><span class="meter__label">Phone readability</span><span class="meter__bar"></span><span class="meter__value">4.3</span></li>
+            <li class="meter" style="--v: 4.6"><span class="meter__label">Brand match</span><span class="meter__bar"></span><span class="meter__value">4.6</span></li>
+            <li class="meter" style="--v: 4.4"><span class="meter__label">Curiosity</span><span class="meter__bar"></span><span class="meter__value">4.4</span></li>
+          </ul>
+          <div class="stack stack--sm">
+            <span class="label">critique</span>
+            <ul class="notes">
+              <li>v1 spelled the headline “PANNAM”. The text gate failed, so it went back for one edit.</li>
+              <li>All five robots read as separate figures at 320×180.</li>
+              <li>The bottom-right corner is clear for the duration badge.</li>
+            </ul>
+          </div>
+          <div class="stack stack--sm">
+            <span class="label">rounds</span>
+            <ol class="rounds">
+              <li class="round"><div data-t="lineup" data-h="ORUTHAN <em>CHEAT</em> PANNAM"></div><div class="round__meta"><strong>v1 · 3.6</strong><span>text gate failed: “PANNAM”</span></div></li>
+              <li class="round"><div data-t="lineup" data-h="ORUTHAN <em>CHEAT</em> PANNAN"></div><div class="round__meta"><strong>v2 · 4.5 · kept</strong><span>edit: “Change the text to exactly ORUTHAN CHEAT PANNAN. Keep everything else.”</span></div></li>
+            </ol>
+          </div>
+        </div>
+        <p class="option__status" aria-live="polite"></p>
+        <div class="option__actions"><button class="btn" type="button" data-download="option-a-v2.png">Download</button><button class="btn btn--primary" type="button" data-pick>Pick this one</button></div>
+      </article>
+
+      <article class="option" aria-labelledby="opt-b">
+        <div class="option__media"><div data-t="claim" data-h="1 <em>CHEATED</em>" data-tag="B · v1" data-badge="14:32"></div></div>
+        <div class="option__body">
+          <div class="option__head">
+            <div><h2 class="option__title" id="opt-b">Option B</h2><p class="option__type">Shocked face + 2-word claim · photo 2</p></div>
+            <div class="score" aria-label="Overall score 4.1 out of 5"><span class="score__value">4.1</span><span class="score__of">/ 5</span></div>
+          </div>
+          <div class="tags"><span class="chip chip--ok">face ✓</span><span class="chip chip--ok">text ✓</span><span class="chip">badge zone clear</span></div>
+          <ul class="meters" aria-label="Rubric scores">
+            <li class="meter meter--gate" style="--v: 4.8"><span class="meter__label">Face match</span><span class="meter__bar"></span><span class="meter__value">4.8</span></li>
+            <li class="meter meter--gate" style="--v: 5"><span class="meter__label">Text accuracy</span><span class="meter__bar"></span><span class="meter__value">5.0</span></li>
+            <li class="meter" style="--v: 4.7"><span class="meter__label">Phone readability</span><span class="meter__bar"></span><span class="meter__value">4.7</span></li>
+            <li class="meter" style="--v: 4.2"><span class="meter__label">Brand match</span><span class="meter__bar"></span><span class="meter__value">4.2</span></li>
+            <li class="meter meter--low" style="--v: 3.4"><span class="meter__label">Curiosity</span><span class="meter__bar"></span><span class="meter__value">3.4</span></li>
+          </ul>
+          <div class="stack stack--sm">
+            <span class="label">critique</span>
+            <ul class="notes">
+              <li>The strongest face match of the three.</li>
+              <li>Curiosity is low: “1 CHEATED” doesn't say who cheated, or at what.</li>
+              <li>Shipped in round 1. No edit needed.</li>
+            </ul>
+          </div>
+          <div class="stack stack--sm">
+            <span class="label">rounds</span>
+            <ol class="rounds">
+              <li class="round"><div data-t="claim" data-h="1 <em>CHEATED</em>"></div><div class="round__meta"><strong>v1 · 4.1 · kept</strong><span>verdict: ship</span></div></li>
+            </ol>
+          </div>
+        </div>
+        <p class="option__status" aria-live="polite"></p>
+        <div class="option__actions"><button class="btn" type="button" data-download="option-b-v1.png">Download</button><button class="btn btn--primary" type="button" data-pick>Pick this one</button></div>
+      </article>
+
+      <article class="option" aria-labelledby="opt-c">
+        <div class="option__media"><div data-t="screen" data-h="5 AGENTS <em>1</em> CHEAT" data-tag="C · v2" data-badge="14:32"></div></div>
+        <div class="option__body">
+          <div class="option__head">
+            <div><h2 class="option__title" id="opt-c">Option C</h2><p class="option__type">Screenshot + red arrow · photo 3</p></div>
+            <div class="score" aria-label="Overall score 4.0 out of 5"><span class="score__value">4.0</span><span class="score__of">/ 5</span></div>
+          </div>
+          <div class="tags"><span class="chip chip--ok">face ✓</span><span class="chip chip--ok">text ✓</span><span class="chip">badge zone clear</span></div>
+          <ul class="meters" aria-label="Rubric scores">
+            <li class="meter meter--gate" style="--v: 4.1"><span class="meter__label">Face match</span><span class="meter__bar"></span><span class="meter__value">4.1</span></li>
+            <li class="meter meter--gate" style="--v: 5"><span class="meter__label">Text accuracy</span><span class="meter__bar"></span><span class="meter__value">5.0</span></li>
+            <li class="meter" style="--v: 3.6"><span class="meter__label">Phone readability</span><span class="meter__bar"></span><span class="meter__value">3.6</span></li>
+            <li class="meter" style="--v: 4.3"><span class="meter__label">Brand match</span><span class="meter__bar"></span><span class="meter__value">4.3</span></li>
+            <li class="meter" style="--v: 4.1"><span class="meter__label">Curiosity</span><span class="meter__bar"></span><span class="meter__value">4.1</span></li>
+          </ul>
+          <div class="stack stack--sm">
+            <span class="label">critique</span>
+            <ul class="notes">
+              <li>v1's headline was 18% of the height. The edit made it 30% larger and moved it to the top.</li>
+              <li>The screenshot detail is lost at 320×180.</li>
+              <li>Face match is the lowest of the three: the jawline drifted a little in the edit.</li>
+            </ul>
+          </div>
+          <div class="stack stack--sm">
+            <span class="label">rounds</span>
+            <ol class="rounds">
+              <li class="round"><div data-t="screen" data-h="5 AGENTS 1 CHEAT" data-small></div><div class="round__meta"><strong>v1 · 3.4</strong><span>headline too small for a phone</span></div></li>
+              <li class="round"><div data-t="screen" data-h="5 AGENTS <em>1</em> CHEAT"></div><div class="round__meta"><strong>v2 · 4.0 · kept</strong><span>edit: “Make the headline 30% larger and move it to the top. Keep everything else.”</span></div></li>
+            </ol>
+          </div>
+        </div>
+        <p class="option__status" aria-live="polite"></p>
+        <div class="option__actions"><button class="btn" type="button" data-download="option-c-v2.png">Download</button><button class="btn btn--primary" type="button" data-pick>Pick this one</button></div>
+      </article>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap site-footer__inner">
+    <span>Thumbnail Agent · design prototype v0.2 · sample data</span>
+    <a href="https://mugilans.in">mugilans.in</a>
+  </div>
+</footer>
+</div>
+
+<!-- ===================================================== Command palette -->
+<div class="cmdk" data-cmdk hidden>
+  <div class="cmdk__scrim" data-cmdk-close></div>
+  <div class="cmdk__panel" role="dialog" aria-modal="true" aria-labelledby="cmdk-title">
+    <div class="panel__bar"><span id="cmdk-title">thumbnail-agent · go to</span><span class="muted">esc</span></div>
+    <div class="cmdk__prompt">
+      <span class="cmdk__caret" aria-hidden="true">›</span>
+      <input class="cmdk__input" id="cmdk-input" type="text" placeholder="Search views and recent concepts" autocomplete="off" spellcheck="false"
+             role="combobox" aria-expanded="true" aria-controls="cmdk-list" aria-autocomplete="list" aria-label="Search">
+    </div>
+    <div class="cmdk__tabs" role="tablist" aria-label="Filter">
+      <button class="tab" type="button" role="tab" aria-selected="true" data-filter="all">All</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" data-filter="view">Views</button>
+      <button class="tab" type="button" role="tab" aria-selected="false" data-filter="concept">Recent concepts</button>
+    </div>
+    <ul class="cmdk__list" id="cmdk-list" role="listbox" aria-label="Results"></ul>
+    <div class="cmdk__foot"><span>↑↓ move</span><span>↵ open</span><span>esc close</span></div>
+  </div>
+</div>
+
+<script>
+/* ---------------------------------------------------------------------------
+   Placeholder thumbnails. <div data-t="claim|versus|screen|lineup|number"
+   data-h="HEADLINE with <em>one</em> word" data-tag data-badge data-face>
+--------------------------------------------------------------------------- */
+function paintThumb(el) {
+  const t = el.dataset.t || 'claim', h = el.dataset.h || '', face = el.dataset.face || '';
+  const person = mod => `<span class="thumb__person ${mod}" aria-hidden="true"></span>`;
+  const head = mod => `<span class="thumb__headline ${mod}">${h}</span>`;
+  const L = [];
+  if (t === 'claim') L.push(person(face === 'smile' ? 'thumb__person--smile' : ''), head(''));
+  if (t === 'versus') L.push('<span class="thumb__logos" aria-hidden="true"><i></i><i></i></span><span class="thumb__vs" aria-hidden="true">VS</span>', head('thumb__headline--top'));
+  if (t === 'screen') L.push(person('thumb__person--small'), '<span class="thumb__screen" aria-hidden="true"></span><span class="thumb__arrow" aria-hidden="true"></span>', head('thumb__headline--top' + ('small' in el.dataset ? ' thumb__headline--small' : '')));
+  if (t === 'lineup') L.push(person(''), '<span class="thumb__lineup" aria-hidden="true"><i></i><i></i><i></i><i class="is-flagged"></i><i></i></span>', head(''));
+  if (t === 'number') L.push(`<span class="thumb__number">${h}</span>`, person('thumb__person--right thumb__person--smile'));
+  if (el.dataset.badge) L.push(`<span class="thumb__badge" aria-hidden="true">${el.dataset.badge}</span>`);
+  if (el.dataset.tag) L.push(`<span class="thumb__tag" aria-hidden="true">${el.dataset.tag}</span>`);
+  el.classList.add('thumb', 'thumb--' + t);
+  el.setAttribute('role', 'img');
+  el.setAttribute('aria-label', `Placeholder thumbnail, ${t} style: ${h.replace(/<[^>]+>/g, '')}`);
+  el.innerHTML = L.join('');
+}
+
+/* Sample channel thumbnails for the setup grid (27 fetched). */
+const PAST = [
+  ['claim', 'GPT-5 <em>FLOP?</em>'], ['lineup', 'ONLY <em>ONE</em> WORKS'], ['versus', 'WHO <em>WINS?</em>'],
+  ['screen', 'HIDDEN <em>SETTING</em>'], ['claim', '<em>FREE</em> FOREVER?'], ['number', '₹0'],
+  ['versus', '<em>₹0</em> VS ₹1,999'], ['claim', 'RIP <em>GOOGLE?</em>'], ['screen', 'DELETE <em>THIS</em>'],
+  ['lineup', '<em>BEST</em> AI PHONE?'], ['number', '10×'],
+];
+const grid = document.querySelector('[data-thumb-grid]');
+grid.innerHTML = PAST.map(([t, h]) => `<div data-t="${t}" data-h="${h}"></div>`).join('') +
+  '<div class="thumb-grid__more">+16 more</div>';
+document.querySelectorAll('[data-t]').forEach(paintThumb);
+
+/* ---------------------------------------------------------------------------
+   Views: #setup, #generate, #results
+--------------------------------------------------------------------------- */
+const VIEWS = ['setup', 'generate', 'results'];
+function showView(id, focus) {
+  if (!VIEWS.includes(id)) id = 'generate';
+  document.querySelectorAll('[data-view]').forEach(v => { v.hidden = v.dataset.view !== id; });
+  document.querySelectorAll('[data-view-link]').forEach(a => {
+    if (a.dataset.viewLink === id) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+  });
+  document.title = { setup: 'Creator Setup', generate: 'Thumbnail Designer', results: 'Thumbnail Results' }[id];
+  if (focus) { const h = document.querySelector(`[data-view="${id}"] h1`); h.setAttribute('tabindex', '-1'); h.focus({ preventScroll: true }); }
+  window.scrollTo(0, 0);
+}
+addEventListener('hashchange', () => showView(location.hash.slice(1), true));
+showView(location.hash.slice(1), false);
+
+/* Platform-aware shortcut labels */
+const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+document.querySelectorAll('[data-mod-k]').forEach(k => { k.textContent = isMac ? '⌘K' : 'Ctrl K'; });
+document.querySelectorAll('[data-mod-enter]').forEach(k => { k.textContent = isMac ? '⌘↵' : 'Ctrl ↵'; });
+
+/* ---------------------------------------------------------------------------
+   Setup interactions (prototype only: nothing is uploaded)
+--------------------------------------------------------------------------- */
+document.querySelectorAll('[data-drop]').forEach(zone => {
+  const input = zone.querySelector('input'), status = zone.querySelector('[data-drop-status]');
+  const say = files => { status.textContent = `${files.length} file${files.length === 1 ? '' : 's'} chosen · prototype, nothing is uploaded`; };
+  input.addEventListener('change', () => input.files.length && say(input.files));
+  ['dragenter', 'dragover'].forEach(ev => zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.add('is-over'); }));
+  ['dragleave', 'drop'].forEach(ev => zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.remove('is-over'); }));
+  zone.addEventListener('drop', e => e.dataTransfer.files.length && say(e.dataTransfer.files));
+});
+document.querySelector('[data-fetch]').addEventListener('click', e => {
+  const s = document.querySelector('[data-fetch-status]');
+  e.currentTarget.textContent = 'Fetching…';
+  setTimeout(() => { e.target.closest('button').textContent = 'Fetch latest 30'; s.textContent = '27 fetched with titles · 3 Shorts skipped · just now'; }, 900);
+});
+document.querySelectorAll('[data-rename]').forEach(btn => btn.addEventListener('click', () => {
+  const name = btn.closest('.reftype').querySelector('.reftype__name');
+  const editing = name.getAttribute('contenteditable') === 'true';
+  name.setAttribute('contenteditable', String(!editing));
+  btn.textContent = editing ? 'Rename' : 'Save';
+  if (!editing) { name.focus(); getSelection().selectAllChildren(name); }
+}));
+document.querySelector('[data-confirm-brand]').addEventListener('click', e => {
+  document.querySelector('[data-brand-status]').textContent = 'Saved · the agent uses this kit from the next run';
+  e.currentTarget.textContent = 'Confirmed';
+});
+
+/* ---------------------------------------------------------------------------
+   Generate: prompt box, options, live trace
+--------------------------------------------------------------------------- */
+const form = document.querySelector('[data-prompt-form]');
+const concept = document.getElementById('concept');
+const charCount = document.querySelector('[data-char-count]');
+const updateCount = () => { charCount.textContent = `${concept.value.length} / ${concept.maxLength}`; };
+concept.addEventListener('input', updateCount); updateCount();
+
+const LANG_HINT = {
+  en: 'The image model draws the text. The critic checks the spelling.',
+  ta: 'Tamil script is drawn by code after generation, so the spelling is exact.',
+  tanglish: 'The image model draws the text. The critic checks the spelling.',
+};
+const PROVIDER_HINT = {
+  gemini: 'IMAGE_MODEL from .env · up to 9 image calls a run',
+  openai: 'IMAGE_MODEL from .env · up to 9 image calls a run · needs OPENAI_API_KEY',
+};
+form.addEventListener('change', e => {
+  if (e.target.name === 'lang') document.querySelector('[data-lang-hint]').textContent = LANG_HINT[e.target.value];
+  if (e.target.name === 'provider') document.querySelector('[data-provider-hint]').textContent = PROVIDER_HINT[e.target.value];
+});
+
+const RUN = [
+  { name: 'Brief', detail: 'headline “ORUTHAN CHEAT PANNAN” · 3 words · emotion: suspicious', t: 1.9 },
+  { name: 'Pick reference', detail: 'Lineup + winner · examples #07 #19 · photo 2 (shocked)', t: 2.4 },
+  { name: 'Image prompt', detail: '3 prompts · text mode: model', t: 3.1 },
+  { name: 'Generate', detail: '3 options · 3 image calls', t: 17.8, provider: true },
+  { name: 'Critique', detail: 'A 3.6 · B 4.1 · C 3.4 · A failed the text gate (“PANNAM”)', t: 6.2 },
+  { name: 'Refine', detail: 'edited A and C · 2 image calls · best version kept', t: 13.9 },
+  { name: 'Results', detail: 'A 4.5 · B 4.1 · C 4.0 · 5 of 9 image calls used', t: 0.3 },
+];
+const trace = document.querySelector('[data-trace]');
+const traceStatus = document.querySelector('[data-trace-status]');
+const runBtn = document.querySelector('[data-run]');
+const toResults = document.querySelector('[data-to-results]');
+const pad = n => String(n).padStart(2, '0');
+const provider = () => form.querySelector('[name="provider"]:checked').value;
+
+function rowHTML(step, i, status) {
+  const detail = step.provider ? `${step.detail} · ${provider() === 'gemini' ? 'Gemini' : 'OpenAI'}` : step.detail;
+  return `<span class="trace__num">${pad(i + 1)}</span>
+    <span><span class="trace__name">${step.name}</span><span class="trace__detail">${detail}</span></span>
+    <span class="trace__end"><span class="status" data-status="${status}">${status}</span><span class="trace__time">${status === 'done' ? step.t.toFixed(1) + 's' : ''}</span></span>`;
+}
+function renderDoneTrace() {
+  trace.innerHTML = RUN.map((s, i) => `<li class="trace__row" data-status="done">${rowHTML(s, i, 'done')}</li>`).join('');
+  const total = RUN.reduce((a, s) => a + s.t, 0);
+  traceStatus.textContent = `done · ${total.toFixed(1)}s`;
+}
+renderDoneTrace();
+
+let running = false;
+const wait = ms => new Promise(r => setTimeout(r, ms));
+async function run() {
+  if (running) return;
+  running = true;
+  runBtn.disabled = true; runBtn.firstChild.textContent = 'Running ';
+  toResults.setAttribute('aria-disabled', 'true');
+  document.querySelectorAll('[data-stale-while-running]').forEach(p => p.classList.add('is-stale'));
+  trace.innerHTML = '';
+  traceStatus.textContent = 'running';
+  for (let i = 0; i < RUN.length; i++) {
+    const li = document.createElement('li');
+    li.className = 'trace__row is-new';
+    li.dataset.status = 'running';
+    li.innerHTML = rowHTML(RUN[i], i, 'running');
+    trace.append(li);
+    traceStatus.textContent = `running · ${RUN[i].name.toLowerCase()}`;
+    await wait(300 + RUN[i].t * 70);
+    li.dataset.status = 'done';
+    li.innerHTML = rowHTML(RUN[i], i, 'done');
+  }
+  traceStatus.textContent = `done · ${RUN.reduce((a, s) => a + s.t, 0).toFixed(1)}s`;
+  document.querySelectorAll('[data-stale-while-running]').forEach(p => p.classList.remove('is-stale'));
+  toResults.removeAttribute('aria-disabled');
+  runBtn.disabled = false; runBtn.firstChild.textContent = 'Run ';
+  running = false;
+}
+form.addEventListener('submit', e => { e.preventDefault(); run(); });
+concept.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); run(); } });
+toResults.addEventListener('click', e => { if (toResults.getAttribute('aria-disabled') === 'true') e.preventDefault(); });
+
+/* ---------------------------------------------------------------------------
+   Results: pick one (saved to memory in the real app), download
+--------------------------------------------------------------------------- */
+document.querySelectorAll('.option').forEach(card => {
+  const status = card.querySelector('.option__status');
+  card.querySelector('[data-pick]').addEventListener('click', () => {
+    document.querySelectorAll('.option').forEach(c => {
+      const picked = c === card;
+      c.classList.toggle('is-picked', picked);
+      c.querySelector('[data-pick]').textContent = picked ? 'Picked' : 'Pick this one';
+      c.querySelector('.option__status').textContent = picked ? 'Saved to memory · future runs lean toward this style' : '';
+    });
+  });
+  card.querySelector('[data-download]').addEventListener('click', e => {
+    status.textContent = `${e.currentTarget.dataset.download} · 1280×720 · prototype, no file yet`;
+  });
+});
+
+/* Copy button */
+document.querySelectorAll('[data-copy]').forEach(btn => btn.addEventListener('click', () => {
+  const target = document.querySelector(btn.dataset.copy);
+  const reset = () => setTimeout(() => { btn.textContent = 'Copy'; }, 1800);
+  const select = () => { const r = document.createRange(); r.selectNodeContents(target); const s = getSelection(); s.removeAllRanges(); s.addRange(r); btn.textContent = 'Selected'; reset(); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(target.innerText).then(() => { btn.textContent = 'Copied'; reset(); }, select);
+  else select();
+}));
+
+/* ---------------------------------------------------------------------------
+   Command palette (⌘K / Ctrl+K)
+--------------------------------------------------------------------------- */
+const ITEMS = [
+  { kind: 'view', name: 'Creator setup', meta: 'once per creator', go: '#setup' },
+  { kind: 'view', name: 'Generate', meta: 'new concept', go: '#generate' },
+  { kind: 'view', name: 'Results', meta: '3 options', go: '#results' },
+  { kind: 'concept', name: 'I let 5 AI agents build the same app, one of them cheated', meta: 'run 14 · today' },
+  { kind: 'concept', name: 'Is the ₹1,999 AI course worth it? I finished it in 2 days', meta: 'run 13 · 1 Oct' },
+  { kind: 'concept', name: 'I built a full app using only voice prompts in Tamil', meta: 'run 12 · 28 Sep' },
+  { kind: 'concept', name: 'This free AI tool replaced my video editor', meta: 'run 11 · 24 Sep' },
+  { kind: 'concept', name: 'Why your AI answers got worse this month', meta: 'run 10 · 19 Sep' },
+  { kind: 'concept', name: '3 hidden phone settings that make AI apps faster', meta: 'run 9 · 15 Sep' },
+];
+const cmdk = document.querySelector('[data-cmdk]');
+const cInput = document.getElementById('cmdk-input');
+const cList = document.getElementById('cmdk-list');
+const cTabs = [...cmdk.querySelectorAll('[data-filter]')];
+const app = document.querySelector('[data-app]');
+let filter = 'all', results = [], sel = 0, lastFocus = null;
+const cssMs = name => parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name)) * 1000 || 0;
+
+function renderList() {
+  const q = cInput.value.trim().toLowerCase();
+  results = ITEMS.filter(it => (filter === 'all' || it.kind === filter) && (!q || it.name.toLowerCase().includes(q)));
+  sel = Math.min(sel, Math.max(results.length - 1, 0));
+  if (!results.length) { cList.innerHTML = `<li class="cmdk__empty" role="presentation">No views or concepts match “${cInput.value.replace(/[<>&]/g, '')}”. Press ↵ to start a new concept with it.</li>`; cInput.removeAttribute('aria-activedescendant'); return; }
+  let html = '', group = '';
+  results.forEach((it, i) => {
+    if (filter === 'all' && it.kind !== group) { group = it.kind; html += `<li class="cmdk__group" role="presentation">${group === 'view' ? 'Views' : 'Recent concepts'}</li>`; }
+    html += `<li class="row" role="option" id="cmdk-opt-${i}" data-i="${i}" style="--i:${i}" aria-selected="${i === sel}"><span class="row__num">${pad(i + 1)}</span><span class="row__name">${it.name}</span><span class="row__meta hide-sm">${it.meta}</span></li>`;
+  });
+  cList.innerHTML = html;
+  cInput.setAttribute('aria-activedescendant', 'cmdk-opt-' + sel);
+}
+function move(d) {
+  if (!results.length) return;
+  sel = (sel + d + results.length) % results.length;
+  cList.querySelectorAll('[role="option"]').forEach(o => o.setAttribute('aria-selected', String(+o.dataset.i === sel)));
+  cInput.setAttribute('aria-activedescendant', 'cmdk-opt-' + sel);
+  cList.querySelector(`#cmdk-opt-${sel}`).scrollIntoView({ block: 'nearest' });
+}
+function choose(i) {
+  const it = results[i];
+  if (!it) {
+    if (cInput.value.trim()) { concept.value = cInput.value.trim(); updateCount(); close(); location.hash = '#generate'; concept.focus(); }
+    return;
+  }
+  close(false);
+  if (it.kind === 'view') { location.hash = it.go; }
+  else { concept.value = it.name; updateCount(); location.hash = '#generate'; showView('generate'); concept.focus(); }
+}
+function open() {
+  if (!cmdk.hidden) return;
+  lastFocus = document.activeElement;
+  cmdk.hidden = false; app.inert = true;
+  cInput.value = ''; sel = 0; renderList();
+  requestAnimationFrame(() => requestAnimationFrame(() => cmdk.classList.add('is-open')));
+  cInput.focus();
+}
+function close(restore = true) {
+  if (cmdk.hidden) return;
+  cmdk.classList.remove('is-open'); app.inert = false;
+  setTimeout(() => { cmdk.hidden = true; }, Math.max(cssMs('--dur-fast'), cssMs('--dur-base')));
+  if (restore && lastFocus) lastFocus.focus();
+}
+document.querySelectorAll('[data-cmdk-open]').forEach(b => b.addEventListener('click', open));
+cmdk.querySelector('[data-cmdk-close]').addEventListener('click', () => close());
+cInput.addEventListener('input', () => { sel = 0; renderList(); });
+cTabs.forEach(tab => tab.addEventListener('click', () => {
+  filter = tab.dataset.filter; sel = 0;
+  cTabs.forEach(t => t.setAttribute('aria-selected', String(t === tab)));
+  renderList(); cInput.focus();
+}));
+cList.addEventListener('click', e => { const o = e.target.closest('[role="option"]'); if (o) choose(+o.dataset.i); });
+cList.addEventListener('mousemove', e => { const o = e.target.closest('[role="option"]'); if (o && +o.dataset.i !== sel) move(+o.dataset.i - sel); });
+cmdk.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { e.preventDefault(); close(); }
+  else if (e.key === 'ArrowDown') { e.preventDefault(); move(1); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); move(-1); }
+  else if (e.key === 'Enter' && e.target === cInput) { e.preventDefault(); choose(sel); }
+  else if (e.key === 'Tab') {                 /* keep focus inside the palette */
+    const f = [cInput, ...cTabs]; const i = f.indexOf(document.activeElement);
+    e.preventDefault(); f[(i + (e.shiftKey ? -1 : 1) + f.length) % f.length].focus();
+  }
+});
+document.addEventListener('keydown', e => {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); cmdk.hidden ? open() : close(); }
+});
+</script>
+</body>
+</html>

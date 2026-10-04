@@ -1,0 +1,543 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>System Prompt vs User Prompt</title>
+<meta name="description" content="Episode 03 of the Thumbnail Agent series: what the system prompt and the user prompt each do, shown step by step.">
+<meta name="theme-color" content="#faf9f5">
+<script>
+  /* Reel mode is decided before first paint, so the page chrome never flashes. */
+  if (new URLSearchParams(location.search).get('mode') === 'reel') document.documentElement.classList.add('is-reel');
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Geist+Mono:wght@400;500&family=Hanken+Grotesk:ital,wght@0,400..900;1,400..600&family=Noto+Sans+Tamil:wght@400..700&display=swap">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="base.css">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="brand" href="app.html" aria-label="mugilans.in, Thumbnail Agent">
+      <span class="brand__mark" aria-hidden="true"></span>
+      <span class="brand__site">mugilans.in</span>
+      <span class="brand__sep" aria-hidden="true">/</span>
+      <span class="brand__name">Thumbnail Agent</span>
+    </a>
+    <div class="site-header__end">
+      <span class="label">Ep 03 / 15</span>
+    </div>
+  </div>
+</header>
+
+<div class="page-grid">
+  <nav class="toc" aria-label="On this page">
+    <p class="label toc__title">On this page</p>
+    <a href="#idea">The idea</a>
+    <a href="#interactive">Step by step</a>
+    <a href="#quiz">Check yourself</a>
+    <a href="#build">Build it</a>
+    <a href="#output">What you'll have</a>
+    <a href="#next">Next episode</a>
+  </nav>
+
+  <main id="main" class="wrap wrap--article">
+    <header class="episode-hero">
+      <p class="eyebrow">Episode 03 of 15 · <strong>Part 1: Foundations</strong></p>
+      <h1>System prompt vs. user prompt</h1>
+      <p class="lede">The creator types one line about their video. What comes back depends on the instructions the agent sends above that line. In this episode you write the Strategist's system prompt and watch the same concept go from generic to on-brand.</p>
+      <p class="meta">
+        <span>Stage <strong>Brief</strong></span>
+        <span>You build <strong>the Strategist prompt</strong></span>
+        <span>About <strong>20 min</strong></span>
+        <span>Checkpoint <strong>ep-03-system-prompt</strong></span>
+      </p>
+    </header>
+
+    <section class="stack stack--sm map-block" aria-labelledby="map-title">
+      <p class="label" id="map-title">Where this lives in the agent</p>
+      <nav class="pipeline" data-stage="brief" aria-label="Pipeline map, current stage: Brief"></nav>
+    </section>
+
+    <section class="section" id="idea" aria-labelledby="idea-title">
+      <div class="section__head"><h2 id="idea-title">The idea</h2><span class="label">2 min read</span></div>
+      <div class="prose">
+        <p>Every time an app asks a language model for something, it sends a short stack of messages. Two of them matter here.</p>
+        <p>The <strong>system prompt</strong> sits at the top. It holds the standing instructions: who the model is working for, the rules it has to follow, and what a good answer looks like. You write it once, and it goes out with every request.</p>
+        <p>The <strong>user prompt</strong> sits under it. It's the part that changes on every run. In Thumbnail Agent, it's the video concept the creator types into the box.</p>
+        <p>The model reads the whole stack from top to bottom, then answers the last message with everything above it in mind. Change what sits on top, and the same concept gets a very different answer.</p>
+        <p>You've seen this from the outside. The help chat in a food-delivery app and the assistant in a coding tool can run on the same kind of model, yet one talks about refunds and the other talks about code. Much of that difference comes from their system prompts. We can't read their prompts, so treat this as an analogy for how such apps are usually built.</p>
+        <p>Our Brief stage works the same way. Its system prompt, the Strategist, carries the channel's rules: four words at most, Tanglish, one emotion, and a fixed answer shape. Remove it and the model still answers. It just answers like a generic assistant.</p>
+      </div>
+      <dl class="kv kv--boxed after">
+        <div class="kv__row"><dt>System prompt</dt><dd>The rules that go out with every request. We write it once per stage.</dd></div>
+        <div class="kv__row"><dt>User prompt</dt><dd>This run's request. The creator writes it: the video concept.</dd></div>
+      </dl>
+    </section>
+
+    <section class="section" id="interactive" aria-labelledby="interactive-title">
+      <div class="section__head"><h2 id="interactive-title">Step by step</h2><span class="label">6 steps</span></div>
+
+      <section class="player" id="player" tabindex="0" aria-label="Step player: what the model receives" aria-describedby="player-hint">
+        <div class="panel__bar player__bar">
+          <span data-bar-title>interactive · what the model receives</span>
+          <span class="num" data-count>01 / 06</span>
+        </div>
+
+        <div class="player__stage">
+          <div class="msgs-head"><span>messages sent to the model</span><span>read top → bottom</span></div>
+          <ol class="msgs">
+            <li class="msg msg--system" data-el="sys">
+              <span class="msg__role">system</span>
+              <div class="msg__body">
+                <p>You are the Strategist for Arivu Labs, a Tamil tech channel. Turn the concept into a thumbnail brief.</p>
+                <p class="muted">Headline ≤ 4 words, never the title. Tanglish. One emotion. Answer in 4 lines.</p>
+              </div>
+              <span class="msg__empty" data-empty>empty · system prompt goes here</span>
+            </li>
+            <li class="msg msg--user" data-el="user">
+              <span class="msg__role">user</span>
+              <div class="msg__body"><p>I let 5 AI agents build the same app, one of them cheated</p></div>
+              <span class="msg__empty">empty · user prompt goes here</span>
+            </li>
+          </ol>
+          <div class="flow" data-el="flow1" aria-hidden="true"></div>
+          <div class="model" data-el="model"><span>model</span><span class="model__dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
+          <div class="flow" data-el="flow2" aria-hidden="true"></div>
+          <div class="out" data-el="out" data-sys="on">
+            <div class="out__head"><span>output</span><span data-out-label>waiting</span></div>
+            <p class="out__wait">Nothing yet. The model answers after it reads the stack.</p>
+            <div class="out__with">
+              <div><b>Headline:</b> ORUTHAN <mark>CHEAT</mark> PANNAN</div>
+              <div><b>Hook:</b> 5 agents, 1 app, 1 broke the rules</div>
+              <div><b>Emotion:</b> suspicious, then shocked</div>
+              <div><b>Key objects:</b> 5 robots in a row, red circle on #4</div>
+              <p class="out__note">3 words · Tanglish · one emotion</p>
+            </div>
+            <div class="out__without">
+              <p>Great video idea! Here are some thumbnail suggestions:</p>
+              <ol>
+                <li>Bold text: "I Let 5 AI Agents Build the Same App… One of Them CHEATED!"</li>
+                <li>Show five robot icons, with one wearing a villain mask.</li>
+                <li>Use bright, eye-catching colors like red and yellow.</li>
+              </ol>
+              <p class="out__note out__note--bad">13 words · repeats the title · English</p>
+            </div>
+          </div>
+        </div>
+
+        <p class="player__caption" data-caption aria-live="polite"></p>
+
+        <div class="player__controls">
+          <div class="progress" role="group" aria-label="Jump to step" data-progress></div>
+          <div class="player__buttons">
+            <button class="btn btn--icon" type="button" data-prev aria-label="Previous step">←</button>
+            <button class="btn" type="button" data-play aria-pressed="false">Play</button>
+            <button class="btn btn--icon" type="button" data-next aria-label="Next step">→</button>
+          </div>
+          <p class="player__hint" id="player-hint">← → to step · space to play</p>
+          <button class="switch player__switch" type="button" role="switch" aria-checked="true" data-sys-toggle>
+            <span class="switch__track" aria-hidden="true"><span class="switch__knob"></span></span>
+            <span>System prompt</span>
+            <span class="switch__state" data-sys-state>on</span>
+          </button>
+        </div>
+      </section>
+      <p class="label after">The outputs are real samples from a test run, saved so the player works offline.</p>
+    </section>
+
+    <section class="section" id="quiz" aria-labelledby="quiz-title">
+      <div class="section__head"><h2 id="quiz-title">Check yourself</h2><span class="label" data-quiz-score>0 / 3 answered</span></div>
+      <div class="quiz" data-quiz>
+        <fieldset class="quiz__q" data-answer="b">
+          <legend class="quiz__prompt"><span class="label">Question 1 · spot it</span>The creator types “I let 5 AI agents build the same app, one of them cheated” into the box. Which message is that?</legend>
+          <div class="quiz__opts">
+            <button class="quiz__opt" type="button" data-key="a"><span class="quiz__key">A</span><span>The system prompt</span><span class="quiz__mark"></span></button>
+            <button class="quiz__opt" type="button" data-key="b"><span class="quiz__key">B</span><span>The user prompt</span><span class="quiz__mark"></span></button>
+            <button class="quiz__opt" type="button" data-key="c"><span class="quiz__key">C</span><span>The model's output</span><span class="quiz__mark"></span></button>
+          </div>
+          <p class="quiz__feedback" hidden data-explain>The creator only ever writes the <strong>user prompt</strong>. The system prompt is ours: written once, sent with every run.</p>
+        </fieldset>
+
+        <fieldset class="quiz__q" data-answer="b">
+          <legend class="quiz__prompt"><span class="label">Question 2 · predict</span>You delete the line “Headline: 4 words max, never the video title” from the system prompt and run the same concept again. What will most likely happen?</legend>
+          <div class="quiz__opts">
+            <button class="quiz__opt" type="button" data-key="a"><span class="quiz__key">A</span><span>The model asks you how long the headline should be</span><span class="quiz__mark"></span></button>
+            <button class="quiz__opt" type="button" data-key="b"><span class="quiz__key">B</span><span>The headline gets longer and starts repeating the video title</span><span class="quiz__mark"></span></button>
+            <button class="quiz__opt" type="button" data-key="c"><span class="quiz__key">C</span><span>Nothing changes, because the model remembers the last run</span><span class="quiz__mark"></span></button>
+          </div>
+          <p class="quiz__feedback" hidden data-explain>Each request stands alone. Without the rule in the stack, the model falls back to its habit of <strong>long, title-like headlines</strong>. It only remembers earlier runs if you send them again.</p>
+        </fieldset>
+
+        <fieldset class="quiz__q" data-answer="b">
+          <legend class="quiz__prompt"><span class="label">Question 3 · place it</span>Which of these belongs in the system prompt?</legend>
+          <div class="quiz__opts">
+            <button class="quiz__opt" type="button" data-key="a"><span class="quiz__key">A</span><span>“This video is about Gemini's new image model”</span><span class="quiz__mark"></span></button>
+            <button class="quiz__opt" type="button" data-key="b"><span class="quiz__key">B</span><span>“Answer in 4 lines: Headline, Hook, Emotion, Key objects”</span><span class="quiz__mark"></span></button>
+            <button class="quiz__opt" type="button" data-key="c"><span class="quiz__key">C</span><span>“Make this one funnier than usual”</span><span class="quiz__mark"></span></button>
+          </div>
+          <p class="quiz__feedback" hidden data-explain>The answer format applies to <strong>every run</strong>, so it lives in the system prompt. The topic and one-off requests change per run, so they go in the user prompt.</p>
+        </fieldset>
+
+        <div class="quiz__score" hidden data-quiz-done>
+          <p class="mono" data-quiz-result></p>
+          <button class="btn" type="button" data-quiz-reset>Try again</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="build" aria-labelledby="build-title">
+      <div class="section__head"><h2 id="build-title">Build it</h2><span class="label">paste into your AI coding assistant</span></div>
+      <div class="stack">
+        <p class="prose">Start from the episode 2 checkpoint. Copy this prompt as it is. If the check at the end fails, tell us, because the prompt is what we fix.</p>
+        <div class="code">
+          <div class="panel__bar panel__bar--tools">
+            <span>build-prompt · ep-03-system-prompt.md</span>
+            <button class="btn" type="button" data-copy="#build-prompt">Copy</button>
+          </div>
+<pre id="build-prompt"><span class="c">## Context</span>
+You have the Thumbnail Agent app from episode 2 (git tag ep-02-llm-call):
+a Next.js page with a concept box that sends the creator's text to the
+model and shows 5 headline ideas.
+This step adds a system prompt. The concept stays the user prompt.
+
+<span class="c">## Task</span>
+1. Create app/prompts/strategist.v1.md with the Strategist system prompt:
+   - You are the Strategist for &lt;channel name&gt;, a &lt;niche&gt; channel.
+   - Turn the video concept into a thumbnail brief.
+   - Headline: 4 words max, never the video title.
+   - Text language: &lt;English | Tamil | Tanglish&gt;.
+   - One emotion for the face.
+   - Answer in exactly 4 lines: Headline, Hook, Emotion, Key objects.
+2. In app/api/brief/route.ts, read that file and call generateText from
+   the Vercel AI SDK with <span class="k">system</span> set to the file's contents and
+   <span class="k">prompt</span> set to the concept from the box, unchanged.
+3. Add a "System prompt" on/off switch next to the Run button. When it
+   is off, send the same concept with no system prompt.
+4. Show the last two answers side by side, labelled "with" and "without".
+
+<span class="c">## Constraints</span>
+- TypeScript, Next.js App Router, Vercel AI SDK. Model id stays in
+  TEXT_MODEL in .env.
+- The channel rules live only in strategist.v1.md. Don't copy them into
+  the page or the route.
+- Never paste the concept into the system prompt.
+- Use the existing theme (design/tokens.css). No new UI library.
+
+<span class="c">## Done when</span>
+- Switch on: the concept "I let 5 AI agents build the same app, one of
+  them cheated" returns 4 lines, and the headline is 4 words or fewer.
+- Switch off: the same concept returns longer, generic free text.
+- Editing a rule in strategist.v1.md changes the next answer, with no
+  code change.
+- The request log shows the concept only in the user message.</pre>
+        </div>
+
+        <div class="stack stack--sm">
+          <p class="label">Done when · tick these off yourself</p>
+          <div class="checklist">
+            <label class="check"><input type="checkbox" id="done-1"><span>Switch on: the sample concept returns 4 lines, and the headline is 4 words or fewer.</span></label>
+            <label class="check"><input type="checkbox" id="done-2"><span>Switch off: the same concept returns longer, generic free text.</span></label>
+            <label class="check"><input type="checkbox" id="done-3"><span>Editing a rule in <code>strategist.v1.md</code> changes the next answer, with no code change.</span></label>
+            <label class="check"><input type="checkbox" id="done-4"><span>The request log shows the concept only in the user message.</span></label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="output" aria-labelledby="output-title">
+      <div class="section__head"><h2 id="output-title">What you'll have</h2><span class="label">checkpoint ep-03-system-prompt</span></div>
+      <div class="preview">
+        <div class="panel__bar"><span>localhost:3000 · Thumbnail Agent</span><span class="muted">after episode 03</span></div>
+        <div class="panel__body stack stack--sm">
+          <span class="label">user prompt</span>
+          <p class="preview__concept">I let 5 AI agents build the same app, one of them cheated</p>
+        </div>
+        <div class="preview__cols">
+          <div class="preview__col">
+            <span class="chip chip--ok">system prompt · on</span>
+            <div class="out__with">
+              <div><b>Headline:</b> ORUTHAN <mark>CHEAT</mark> PANNAN</div>
+              <div><b>Hook:</b> 5 agents, 1 app, 1 broke the rules</div>
+              <div><b>Emotion:</b> suspicious, then shocked</div>
+              <div><b>Key objects:</b> 5 robots in a row, red circle on #4</div>
+            </div>
+          </div>
+          <div class="preview__col">
+            <span class="chip">system prompt · off</span>
+            <div class="out__without">
+              <p>Great video idea! Here are some thumbnail suggestions:</p>
+              <ol>
+                <li>Bold text: "I Let 5 AI Agents Build the Same App… One of Them CHEATED!"</li>
+                <li>Show five robot icons, with one wearing a villain mask.</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="prose after">Your app now sends two messages instead of one, and the brand rules live in a file you can version. Episode 04 makes the Strategist answer in validated JSON, so the next stages can read the brief without guessing.</p>
+    </section>
+
+    <section class="section" id="next" aria-labelledby="next-title">
+      <h2 id="next-title" class="visually-hidden">Next episode</h2>
+      <a class="next" href="../episodes/04-structured-output/page/">
+        <span>
+          <span class="label">Next · Episode 04</span>
+          <span class="next__title">Structured output</span>
+          <span class="next__desc">The Strategist returns a Brief as validated JSON: hook, emotion, headline, objects.</span>
+        </span>
+        <span class="next__arrow" aria-hidden="true">→</span>
+      </a>
+    </section>
+  </main>
+  <div aria-hidden="true"></div>
+</div>
+
+<footer class="site-footer">
+  <div class="wrap site-footer__inner">
+    <span>Thumbnail Agent · Build your first agent, episode 03</span>
+    <a href="https://mugilans.in">mugilans.in</a>
+  </div>
+</footer>
+
+<script>
+/* ---------------------------------------------------------------------------
+   Pipeline map. <nav class="pipeline" data-stage="ID"> → rendered map with
+   that stage marked aria-current="step". Same contract as the future
+   <PipelineMap stage="brief" /> component.
+--------------------------------------------------------------------------- */
+const PIPELINE = [
+  { label: 'Setup', note: 'workflow · once per creator', kind: 'workflow', stages: [
+    ['analyze', 'Analyze thumbnails'], ['types', 'Reference types'], ['brand', 'Brand kit'] ] },
+  { label: 'Generate', note: 'agent · per concept', kind: 'agent', stages: [
+    ['brief', 'Brief'], ['pick', 'Pick reference'], ['prompt', 'Image prompt'], ['generate', 'Generate'],
+    ['critique', 'Critique'], ['refine', 'Refine'], ['results', 'Results'] ] },
+];
+function renderPipeline(nav) {
+  const current = nav.dataset.stage;
+  nav.innerHTML = PIPELINE.map(g => `
+    <div class="pipeline__group" data-kind="${g.kind}">
+      <p class="pipeline__label"><strong>${g.label}</strong><span>${g.note}</span></p>
+      <ol class="pipeline__track" style="--cols:${g.stages.length};--cols-sm:${g.stages.length > 3 ? 4 : 3}">
+        ${g.stages.map(([id, name]) => `<li class="pipeline__stage" data-id="${id}"${id === current ? ' aria-current="step"' : ''}>${name}</li>`).join('')}
+      </ol>
+    </div>`).join('');
+}
+document.querySelectorAll('.pipeline[data-stage]').forEach(renderPipeline);
+
+/* ---------------------------------------------------------------------------
+   Step player
+--------------------------------------------------------------------------- */
+const STEPS = [
+  { name: 'The stack', focus: null,
+    caption: 'Every request to the model is a short stack of messages. The model reads it from top to bottom.' },
+  { name: 'System prompt', sys: true, focus: 'sys',
+    caption: 'The system prompt goes first. It carries the standing rules: who the model works for, and what a good answer looks like.',
+    captionOff: 'The system prompt slot is empty. Nothing tells the model who it works for.' },
+  { name: 'User prompt', sys: true, user: true, focus: 'user',
+    caption: 'The user prompt goes under it. It is the only part the creator writes, and it changes on every run.' },
+  { name: 'Model reads', sys: true, user: true, live: true, focus: 'model',
+    caption: 'The model reads the whole stack. The system prompt shapes how it answers the user prompt.',
+    captionOff: 'The model reads the stack, but this time there are no rules above the user prompt.' },
+  { name: 'Output', sys: true, user: true, out: true, focus: 'out',
+    caption: 'Out comes a brief in the channel’s voice: three words of Tanglish, one emotion, and the objects to show.',
+    captionOff: 'Without the system prompt, the same concept gets a long, generic answer that repeats the title.' },
+  { name: 'Switch it off', sys: true, user: true, out: true, focus: 'out', forceOff: true,
+    caption: 'Switch it back on and the sharp brief returns. Nothing else changed.',
+    captionOff: 'Now switch the system prompt off. Same model, same user prompt, and the answer turns generic.' },
+];
+
+const player = document.getElementById('player');
+const isReel = document.documentElement.classList.contains('is-reel');
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const el = name => player.querySelector(`[data-el="${name}"]`);
+const parts = { sys: el('sys'), user: el('user'), flow1: el('flow1'), model: el('model'), flow2: el('flow2'), out: el('out') };
+const ui = {
+  caption: player.querySelector('[data-caption]'),
+  count: player.querySelector('[data-count]'),
+  progress: player.querySelector('[data-progress]'),
+  play: player.querySelector('[data-play]'),
+  toggle: player.querySelector('[data-sys-toggle]'),
+  toggleState: player.querySelector('[data-sys-state]'),
+  sysEmpty: parts.sys.querySelector('[data-empty]'),
+  outLabel: player.querySelector('[data-out-label]'),
+};
+const STEP_MS = (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--dur-step')) || 4) * 1000;
+
+let index = 0, sysOn = true, timer = null;
+
+ui.progress.innerHTML = STEPS.map((s, i) =>
+  `<button class="progress__seg" type="button" data-go="${i}" aria-label="Step ${i + 1}: ${s.name}"></button>`).join('');
+const segs = [...ui.progress.children];
+
+function pad(n) { return String(n).padStart(2, '0'); }
+
+function render() {
+  const s = STEPS[index];
+  const sysShown = !!s.sys && sysOn;
+  parts.sys.classList.toggle('is-in', sysShown);
+  parts.sys.classList.toggle('is-off', !!s.sys && !sysOn);
+  ui.sysEmpty.textContent = (s.sys && !sysOn) ? 'no system prompt sent' : 'empty · system prompt goes here';
+  parts.user.classList.toggle('is-in', !!s.user);
+  [parts.flow1, parts.model, parts.flow2].forEach(p => p.classList.toggle('is-live', !!s.live));
+  parts.out.classList.toggle('is-in', !!s.out);
+  player.classList.toggle('is-compact', !!s.out);   // reel: messages shrink to one line once the output shows
+  parts.out.dataset.sys = sysOn ? 'on' : 'off';
+  ui.outLabel.textContent = s.out ? (sysOn ? 'with system prompt' : 'without system prompt') : 'waiting';
+  Object.entries(parts).forEach(([k, p]) => p.classList.toggle('is-focus', k === s.focus && (k !== 'sys' || sysOn)));
+
+  const text = (!sysOn && s.captionOff) || s.caption;
+  ui.caption.innerHTML = `<span class="step-no">Step ${pad(index + 1)} · ${s.name}</span>${text}`;
+  ui.caption.classList.remove('is-new'); void ui.caption.offsetWidth; ui.caption.classList.add('is-new');
+  ui.count.textContent = `${pad(index + 1)} / ${pad(STEPS.length)}`;
+
+  segs.forEach((b, i) => {
+    b.classList.toggle('is-done', i < index);
+    if (i === index) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
+  });
+  ui.toggle.setAttribute('aria-checked', String(sysOn));
+  ui.toggleState.textContent = sysOn ? 'on' : 'off';
+}
+
+function go(next) {
+  const prev = index;
+  index = Math.max(0, Math.min(STEPS.length - 1, next));
+  if (STEPS[index].forceOff && !STEPS[prev].forceOff) sysOn = false;   // entering the last step
+  if (STEPS[prev].forceOff && !STEPS[index].forceOff) sysOn = true;    // leaving it
+  render();
+}
+
+function setPlaying(on) {
+  clearInterval(timer); timer = null;
+  if (on) {
+    if (!isReel && index === STEPS.length - 1) go(0);
+    timer = setInterval(() => {
+      if (index === STEPS.length - 1) {
+        if (isReel) { sysOn = true; go(0); } else setPlaying(false);
+      } else go(index + 1);
+    }, STEP_MS);
+  }
+  ui.play.textContent = on ? 'Pause' : 'Play';
+  ui.play.setAttribute('aria-pressed', String(on));
+  ui.play.classList.toggle('is-on', on);
+}
+
+player.querySelector('[data-prev]').addEventListener('click', () => { setPlaying(false); go(index - 1); });
+player.querySelector('[data-next]').addEventListener('click', () => { setPlaying(false); go(index + 1); });
+ui.play.addEventListener('click', () => setPlaying(!timer));
+ui.progress.addEventListener('click', e => {
+  const b = e.target.closest('[data-go]'); if (!b) return;
+  setPlaying(false); go(+b.dataset.go);
+});
+ui.toggle.addEventListener('click', () => { sysOn = !sysOn; render(); });
+
+document.addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const t = e.target;
+  if (t.closest('input, textarea, select, [contenteditable="true"]')) return;
+  const inPlayer = player.contains(t);
+  const free = t === document.body || t === document.documentElement;
+  if (!(inPlayer || free || isReel)) return;
+  if (e.key === 'ArrowRight') { e.preventDefault(); setPlaying(false); go(index + 1); }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); setPlaying(false); go(index - 1); }
+  else if (e.key === 'Home') { e.preventDefault(); setPlaying(false); go(0); }
+  else if (e.key === 'End') { e.preventDefault(); setPlaying(false); go(STEPS.length - 1); }
+  else if ((e.key === ' ' || e.key === 'k') && (inPlayer || isReel) && !t.closest('button')) { e.preventDefault(); setPlaying(!timer); }
+});
+
+/* Reel mode: the player alone in a 9:16 frame, auto-advancing. */
+if (isReel) {
+  const wrap = document.createElement('div');
+  wrap.className = 'reel-body';
+  const frame = document.createElement('div');
+  frame.className = 'reel-frame';
+  wrap.append(frame);
+  frame.append(player);
+  document.body.append(wrap);
+  player.querySelector('[data-bar-title]').textContent = 'mugilans.in · Ep 03 · System prompt';
+  player.removeAttribute('tabindex');
+  frame.addEventListener('click', () => setPlaying(!timer));   // tap to pause while recording
+  render();
+  setPlaying(true);
+} else {
+  render();
+}
+
+/* ---------------------------------------------------------------------------
+   Quiz: instant feedback, one try per question, reset at the end.
+--------------------------------------------------------------------------- */
+const quiz = document.querySelector('[data-quiz]');
+const qs = [...quiz.querySelectorAll('.quiz__q')];
+const scoreLabel = document.querySelector('[data-quiz-score]');
+const done = quiz.querySelector('[data-quiz-done]');
+function updateScore() {
+  const answered = qs.filter(q => q.dataset.picked);
+  const right = answered.filter(q => q.dataset.picked === q.dataset.answer).length;
+  scoreLabel.textContent = answered.length < qs.length ? `${answered.length} / ${qs.length} answered` : `${right} / ${qs.length} right`;
+  done.hidden = answered.length < qs.length;
+  quiz.querySelector('[data-quiz-result]').textContent =
+    right === qs.length ? `${right} / ${qs.length}. You can explain this to someone else now.` : `${right} / ${qs.length}. Read the feedback above, then try again.`;
+}
+qs.forEach(q => {
+  q.addEventListener('click', e => {
+    const opt = e.target.closest('.quiz__opt');
+    if (!opt || q.dataset.picked) return;
+    q.dataset.picked = opt.dataset.key;
+    q.querySelectorAll('.quiz__opt').forEach(o => {
+      o.setAttribute('aria-disabled', 'true');
+      const right = o.dataset.key === q.dataset.answer;
+      if (right) { o.classList.add('is-right'); o.querySelector('.quiz__mark').textContent = 'correct'; }
+      if (o === opt && !right) { o.classList.add('is-wrong'); o.querySelector('.quiz__mark').textContent = 'your pick'; }
+    });
+    const ex = q.querySelector('[data-explain]');
+    ex.hidden = false;
+    updateScore();
+  });
+});
+quiz.querySelector('[data-quiz-reset]').addEventListener('click', () => {
+  qs.forEach(q => {
+    delete q.dataset.picked;
+    q.querySelectorAll('.quiz__opt').forEach(o => { o.removeAttribute('aria-disabled'); o.classList.remove('is-right', 'is-wrong'); o.querySelector('.quiz__mark').textContent = ''; });
+    q.querySelector('[data-explain]').hidden = true;
+  });
+  updateScore();
+  qs[0].querySelector('.quiz__opt').focus();
+});
+
+/* ---------------------------------------------------------------------------
+   Copy button: clipboard first, text selection as the fallback.
+--------------------------------------------------------------------------- */
+document.querySelectorAll('[data-copy]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const target = document.querySelector(btn.dataset.copy);
+    const reset = () => setTimeout(() => { btn.textContent = 'Copy'; }, 1800);
+    const select = () => {
+      const r = document.createRange(); r.selectNodeContents(target);
+      const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+      btn.textContent = 'Selected · press Ctrl+C'; reset();
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(target.innerText).then(() => { btn.textContent = 'Copied'; reset(); }, select);
+    } else select();
+  });
+});
+
+/* ---------------------------------------------------------------------------
+   Table of contents: mark the section in view.
+--------------------------------------------------------------------------- */
+const tocLinks = [...document.querySelectorAll('.toc a')];
+if ('IntersectionObserver' in window && tocLinks.length) {
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (!en.isIntersecting) return;
+      tocLinks.forEach(a => a.setAttribute('aria-current', String(a.getAttribute('href') === '#' + en.target.id)));
+    });
+  }, { rootMargin: '-30% 0px -60% 0px' });
+  tocLinks.forEach(a => { const s = document.querySelector(a.getAttribute('href')); if (s) io.observe(s); });
+}
+</script>
+</body>
+</html>
