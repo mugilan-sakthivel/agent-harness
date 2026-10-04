@@ -1,0 +1,8 @@
+# Creator photos, brand/reference thumbnails and generated renders.
+# This repo is public: these must never be committed.
+data/
+output/
+
+.env*
+!.env.example
+node_modules/
